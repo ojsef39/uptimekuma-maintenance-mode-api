@@ -72,7 +72,7 @@ def get_monitor():
 def main():
     init()
     get_monitor()  # test function
-
+    api.disconnect() # disconnect from api after use
 
 if __name__ == '__main__':
     main()

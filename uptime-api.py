@@ -34,6 +34,7 @@ def init():
     log_level = args["log"].upper()
     global mm_host
     mm_host = args["host"]
+    print("host: " + mm_host)
     global mm_phase
     mm_phase = args["phase"]
 
@@ -68,11 +69,9 @@ def init():
     logging.info("LogLevel is set to: " + log_level)
 
     # Check if Host is set
-    if mm_host == None:
+    if mm_host is None:
         logging.critical("No maintenance mode host set… exiting")
         sys.exit()
-
-    print("mm_host:" + mm_host) ##TODO: remove this after testing
 
     # Login to Uptime Kuma
     try:
@@ -86,6 +85,7 @@ def init():
                       "again.")
         if log_level == "DEBUG":
             raise
+        sys.exit()
 
 def get_mm():
     mm_array = api.get_maintenances()
@@ -96,8 +96,8 @@ def get_mm():
         parse_mm(mm['id'], mm['description'], mm['title'])
 
 def parse_mm(mm_id, mm_description, title):
-    # match after # like #hostname
-    matches = re.findall(r"#(\w+)", mm_description)
+    # match "#example" and "#ex-ample"
+    matches = re.findall(r"#([\w-]+)", mm_description)
     #get only last match
     if matches:
         last_match = matches[-1]

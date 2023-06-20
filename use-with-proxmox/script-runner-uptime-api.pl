@@ -1,52 +1,29 @@
 #!/usr/bin/perl -w
 
 use strict;
-
 print "HOOK: " . join (' ', @ARGV) . "\n";
 # check for current "phase"
 my $phase = shift;
+$phase = lc($phase);
 # get vm hostname
 my $hostname = $ENV{HOSTNAME};
 # check if phase "job*" is active
-if ($phase eq 'job-init' ||
-$phase eq 'job-start' ||
-$phase eq 'job-end' ||
-$phase eq 'job-abort') {
+if ($phase eq 'job-init' || $phase eq 'job-start' || $phase eq 'backup-start' ||$phase eq 'pre-restart' || $phase eq 'post-restart') {
 
-#if ($phase eq 'job-start') {
-#system ("/bin/sh /root/uptime-api.sh") == 0 ||
-#die "Running uptime-api.sh script at job-start failed";
-#}
+    # if backup is starting -> start maintenance mode
+    print("Running uptime.py (START)\n");
+    system ("python3 /root/uptime-api.py --host=$hostname --phase='START'") == 0 ||
+    die "Running uptime-api.py script at backup-start failed";
 
-#if ($phase eq 'job-end') {
-#system ("/bin/sh /root/uptime-api.sh") == 0 ||
-#die "Running uptime-api.sh script at job-end failed";
-#}
+} elsif ($phase eq 'backup-end' || $phase eq 'job-end' || $phase eq 'job-abort' || $phase eq 'backup-abort' || $phase eq 'log-end' || $phase eq 'pre-stop') {
 
-# check if phase "backup*" is active
-} elsif ($phase eq 'backup-start' ||
-$phase eq 'backup-end' ||
-$phase eq 'backup-abort' ||
-$phase eq 'log-end' ||
-$phase eq 'pre-stop' ||
-$phase eq 'pre-restart' ||
-$phase eq 'post-restart') {
-
-# if backup is starting -> start maintenance mode
-if ($phase eq 'backup-start') {
-system ("/bin/sh /root/uptime-api.sh --host=$hostname --phase='START'") == 0 ||
-die "Running uptime-api.sh script at backup-start failed";
-}
-# if backup is finished -> stop maintenance mode
-if ($phase eq 'backup-end') {
-system ("/bin/sh /root/uptime-api.sh --host=$hostname --phase='END'") == 0 ||
-die "Running uptime-api.sh script at backup-end failed";
-}
+    # if backup is finished -> stop maintenance mode
+    print("Running uptime.py (END)\n");
+    system ("python3 /root/uptime-api.py --host=$hostname --phase='END'") == 0 ||
+    die "Running uptime-api.py script at backup-end failed";
 
 } else {
 
-die "got unknown phase '$phase'";
-
-}
-
+    die "got unknown phase '$phase'";
+    }
 exit (0);

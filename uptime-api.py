@@ -63,9 +63,12 @@ def init():
     # Check if logging is accepting set log_level
     if not isinstance(loglevel_err, int):
         raise ValueError('Invalid log level: %s' % log_level)
-    logging.basicConfig(level=log_level,
+    logging.basicConfig(filename='uptime-api.log',
+                        filemode='a',
+                        level=log_level,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     # Display set log_level
+    logging.info("START OF LOG")
     logging.info("LogLevel is set to: " + log_level)
 
     # Check if Host is set
@@ -116,13 +119,14 @@ def change_mm(last_match, mm_id, title):
             logging.info("Pausing maintenance mode ID: " + str(mm_id)
                          + " Name: " + title)
     else:
-        logging.critical("Last match: " + last_match + " is not matching: "
+        logging.info("Last match: " + last_match + " is not matching: "
                          + mm_host + ". Exiting…")
 
 def main():
     init()
     get_mm()  # test function
     api.disconnect() # disconnect from api after use
+    logging.debug("Script finished, api disconnected, END OF LOG!")
 
 if __name__ == '__main__':
     main()

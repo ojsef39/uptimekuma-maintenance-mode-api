@@ -1,5 +1,5 @@
-# STILL WIP; DONT USE! #
-
+# STILL WIP; USE WITH CAUTION BUT IT SHOULD WORK #
+**Use branch `master`!** Default branch is `dev`
 ### Python script to control maintenance modes in Uptime-Kuma ###
 For feature requests or bugs/issues please create an [issue](https://gitlab.azubi.server.lan/lwsops-muc/uptimekuma-maintenance-mode-api/-/issues).
 
@@ -18,7 +18,9 @@ see example.env
 ### Usage example: ###
 In Proxmox the hostname of the VM thats currently is being backed up is "evergreen".
 
-So the Proxmox hook (see ReadME in `use-with-proxmox` folders) calls the script `uptime-kuma-api.py --host="evergreen"` then
+So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 uptime-kuma-api.py --host="evergreen" --phase="start"` then
 the script tries to match a maintenance mode to the given host.
 
 To do this. Add `#hostname` so in this case `#evergreen` to the maintenance description.
+
+(Only `#example` and `#with-hyphen-example-2` work)

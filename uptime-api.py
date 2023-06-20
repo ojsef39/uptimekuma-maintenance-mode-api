@@ -22,9 +22,9 @@ def init():
                              " CRITICAL; If not set manually LogLevel "
                              "is set to WARNING by default")
 
-    parser.add_argument('--host',
+    parser.add_argument('--vmid',
                         default=None,
-                        help="Set host for which maintenance mode should be"
+                        help="Set vmid for which maintenance mode should be"
                              "activated/deactivated")
     parser.add_argument('--phase',
                         default=None,
@@ -32,9 +32,9 @@ def init():
 
     args = parser.parse_args().__dict__
     log_level = args["log"].upper()
-    global mm_host
-    mm_host = args["host"]
-    print("host: " + mm_host)
+    global mm_vmid
+    mm_vmid = args["vmid"]
+    print("vmid: " + mm_vmid)
     global mm_phase
     mm_phase = args["phase"]
 
@@ -69,7 +69,7 @@ def init():
     logging.info("LogLevel is set to: " + log_level)
 
     # Check if Host is set
-    if mm_host is None:
+    if mm_vmid is None:
         logging.critical("No maintenance mode host set… exiting")
         sys.exit()
 
@@ -106,7 +106,7 @@ def parse_mm(mm_id, mm_description, title):
         logging.critical("No match found exiting…")
 
 def change_mm(last_match, mm_id, title):
-    if last_match == mm_host:
+    if last_match == mm_vmid:
         if mm_phase == "START":
             api.resume_maintenance(mm_id)
             logging.info("Resumed maintenance mode ID: " + str(mm_id)
@@ -117,7 +117,7 @@ def change_mm(last_match, mm_id, title):
                          + " Name: " + title)
     else:
         logging.critical("Last match: " + last_match + " is not matching: "
-                         + mm_host + ". Exiting…")
+                     + mm_vmid + ". Exiting…")
 
 def main():
     init()

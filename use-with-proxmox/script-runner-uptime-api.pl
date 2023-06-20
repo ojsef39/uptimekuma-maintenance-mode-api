@@ -5,6 +5,8 @@ use strict;
 print "HOOK: " . join (' ', @ARGV) . "\n";
 # check for current "phase"
 my $phase = shift;
+# get vm hostname
+my $hostname = $ENV{HOSTNAME};
 # check if phase "job*" is active
 if ($phase eq 'job-init' ||
 $phase eq 'job-start' ||
@@ -19,7 +21,7 @@ $phase eq 'job-abort') {
 #if ($phase eq 'job-end') {
 #system ("/bin/sh /root/uptime-api.sh") == 0 ||
 #die "Running uptime-api.sh script at job-end failed";
-}
+#}
 
 # check if phase "backup*" is active
 } elsif ($phase eq 'backup-start' ||
@@ -32,12 +34,12 @@ $phase eq 'post-restart') {
 
 # if backup is starting -> start maintenance mode
 if ($phase eq 'backup-start') {
-system ("/bin/sh /root/uptime-api.sh --host=$host --phase='START'") == 0 ||
+system ("/bin/sh /root/uptime-api.sh --host=$hostname --phase='START'") == 0 ||
 die "Running uptime-api.sh script at backup-start failed";
 }
 # if backup is finished -> stop maintenance mode
 if ($phase eq 'backup-end') {
-system ("/bin/sh /root/uptime-api.sh --host=$host --phase='END'") == 0 ||
+system ("/bin/sh /root/uptime-api.sh --host=$hostname --phase='END'") == 0 ||
 die "Running uptime-api.sh script at backup-end failed";
 }
 

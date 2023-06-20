@@ -4,6 +4,9 @@ import sys
 import os
 from uptime_kuma_api import UptimeKumaApi
 
+#Maintenance mode will be abbreviated to MM
+# e.g. search_maintenance_mode will be search_mm
+
 def init():
     global api
 
@@ -53,6 +56,8 @@ def init():
         logging.critical("No maintenance mode host set… exiting")
         sys.exit()
 
+    print("mm_host:" + mm_host) ##TODO: remove this after testing
+
     # Login to Uptime Kuma
     try:
         api = UptimeKumaApi(os.getenv("UPTIME_URL"))
@@ -66,12 +71,19 @@ def init():
         if log_level == "DEBUG":
             raise
 
-def get_monitor():
-    print(api.get_monitors())
+def get_mm():
+    mm_array = api.get_maintenances()
+    for mm in mm_array:
+        logging.debug("Found MM: ID: " + str(mm['id']) + ", Title: " + str(mm['title']) + ", Desc: " + str(mm['description']))
+        parse_mm(mm['description'])
+
+def parse_mm(description):
+    # TODO: regex for "#description"
+    print(description)
 
 def main():
     init()
-    get_monitor()  # test function
+    get_mm()  # test function
     api.disconnect() # disconnect from api after use
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import argparse
 import logging
+import re
 import sys
 import os
 from uptime_kuma_api import UptimeKumaApi
@@ -25,10 +26,16 @@ def init():
                         default=None,
                         help="Set host for which maintenance mode should be"
                              "activated/deactivated")
+    parser.add_argument('--phase',
+                        default=None,
+                        help="Set phase to start or stop maintenance mode.")
 
     args = parser.parse_args().__dict__
     log_level = args["log"].upper()
+    global mm_host
     mm_host = args["host"]
+    global mm_phase
+    mm_phase = args["phase"]
 
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
@@ -38,6 +45,15 @@ def init():
         logging.critical(
             "LogLevel: " + str(log_level) +
             ' is not valid! Please enter NOTHING or a VALID option!'
+            ' See example.env or docs!')
+        sys.exit()
+
+    # Check if log_level is set
+    if mm_phase is not None:
+        mm_phase = mm_phase.upper()
+    if mm_phase not in ["START", "END"]:
+        logging.critical(
+            'Phase was not set correctly!'
             ' See example.env or docs!')
         sys.exit()
 
@@ -73,13 +89,35 @@ def init():
 
 def get_mm():
     mm_array = api.get_maintenances()
+    # log maintenances and run parse
     for mm in mm_array:
-        logging.debug("Found MM: ID: " + str(mm['id']) + ", Title: " + str(mm['title']) + ", Desc: " + str(mm['description']))
-        parse_mm(mm['description'])
+        logging.debug("Found MM: ID: " + str(mm['id']) + ", Title: " +
+                      str(mm['title']) + ", Desc: " + str(mm['description']))
+        parse_mm(mm['id'], mm['description'], mm['title'])
 
-def parse_mm(description):
-    # TODO: regex for "#description"
-    print(description)
+def parse_mm(mm_id, mm_description, title):
+    # match after # like #hostname
+    matches = re.findall(r"#(\w+)", mm_description)
+    #get only last match
+    if matches:
+        last_match = matches[-1]
+        change_mm(last_match, mm_id, title)
+    else:
+        logging.critical("No match found exiting…")
+
+def change_mm(last_match, mm_id, title):
+    if last_match == mm_host:
+        if mm_phase == "START":
+            api.resume_maintenance(mm_id)
+            logging.info("Resumed maintenance mode ID: " + str(mm_id)
+                         + " Name: " + title)
+        elif mm_phase == "END":
+            api.pause_maintenance(mm_id)
+            logging.info("Pausing maintenance mode ID: " + str(mm_id)
+                         + " Name: " + title)
+    else:
+        logging.critical("Last match: " + last_match + " is not matching: "
+                         + mm_host + ". Exiting…")
 
 def main():
     init()

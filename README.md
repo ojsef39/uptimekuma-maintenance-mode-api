@@ -13,6 +13,8 @@ see example.env
 
 --host: "Hostname". Used for matching a maintenance mode to a job/task/host. Kills script if not set.
 
+--phase: "START", "END". Tells script to start or stop maintenance mode.
+
 ### Usage example: ###
 In Proxmox the hostname of the VM thats currently is being backed up is "evergreen".
 

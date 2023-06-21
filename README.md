@@ -12,6 +12,9 @@ Logs are shown in the proxmox log.
 Requirements:
 - `pip install uptime_kuma_api`
 
+Requirements (at least until built version is available):
+- `pip install uptime_kuma_api`
+
 ### Options: ###
 
 `--log`: "DEBUG", "INFO", "WARNING", "ERROR" or "CRITICAL". Defaults to "INFO"

@@ -9,16 +9,18 @@ Requirements (at least until built version is available):
 - `pip install uptime_kuma_api`
 
 ### Options: ###
-#### Environmental: ####
-see example.env
 
-#### Parameters: ####
+`--log`: "DEBUG", "INFO", "WARNING", "ERROR" or "CRITICAL". Defaults to "INFO"
 
---log: "DEBUG", "INFO", "WARNING", "ERROR" or "CRITICAL". Defaults to "INFO"
+`--vmid`: "vmid". Used for matching a maintenance mode to a job/task/host/vmid. Kills script if not set.
 
---vmid: "vmid". Used for matching a maintenance mode to a job/task/host/vmid. Kills script if not set.
+`--phase`: "START", "END". Tells script to start or stop maintenance mode.
 
---phase: "START", "END". Tells script to start or stop maintenance mode.
+`-u`, `--username`: "Uptime Kuma Username"
+
+`-p`, `--password`: "Uptime Kuma Password (Token login will be added in future)"
+
+`--url`: "https://url.to.statuspage/" Defaults to: "https://status.muc.azubi.server.lan"
 
 ### Usage example: ###
 In Proxmox the hostname of the VM thats currently is being backed up is "evergreen".

@@ -1,8 +1,12 @@
 #!/usr/bin/perl -w
 
 use strict;
+#LOGIN DATA
+my $username = "username";
+my $password = "password";
 print "HOOK: " . join (' ', @ARGV) . "\n";
 # check for current "phase"
+#TODO:Use of uninitialized value $phase in string eq at ./use-with-proxmox/script-runner-uptime-api.pl line 12. when only one arg is given (phase=vmid)
 my $vmid = shift;
 my $phase = shift;
 # if $phase is
@@ -22,20 +26,20 @@ $phase eq 'stop' ||
 $phase eq 'backup-end' ||
 $phase eq 'backup-abort' ||
 $phase eq 'log-end') {
-    print "HOOK: Nothing to do here";
+    print "HOOK: Nothing to do here\n";
 
 } elsif ($phase eq 'job-init' || $phase eq 'job-start') {
 
     # if backup is starting -> start maintenance mode
     print("HOOK: Running uptime.py (START)\n");
-    system ("sudo python3 /root/uptime-api.py --vmid=$vmid --phase='START'") == 0 ||
+    system ("sudo python3 /root/uptime-api.py --vmid=$vmid --phase='START' -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at backup-start failed";
 
 } elsif ($phase eq 'job-end' || $phase eq 'job-abort') {
 
     # if backup is finished -> stop maintenance mode
     print("HOOK: Running uptime.py (END)\n");
-    system ("sudo python3 /root/uptime-api.py --vmid=$vmid --phase='END'") == 0 ||
+    system ("sudo python3 /root/uptime-api.py --vmid=$vmid --phase='END' -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at backup-end failed";
 
 } else {

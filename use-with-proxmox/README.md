@@ -18,5 +18,5 @@ You can test if the hook works with (you need a maintenance with #995 in the des
 
 ### Please note: ###
 
-The hook runs following command: `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END'"`, so 
+The hook runs following command: `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' -u='username' -p='pass'"`, so 
 please ensure the `uptime-api.py` can be found in `/root/uptime-api.py`

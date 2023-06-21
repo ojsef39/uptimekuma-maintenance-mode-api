@@ -31,6 +31,17 @@ def init():
     parser.add_argument('--phase',
                         default=None,
                         help="Set phase to start or stop maintenance mode.")
+    parser.add_argument('-u',
+                        '--username',
+                        default=None,
+                        help="Set uptime username (In the future token login will be possible)")
+    parser.add_argument('-p',
+                        '--password',
+                        default=None,
+                        help="Set uptime password (In the future token login will be possible)")
+    parser.add_argument('--url',
+                        default="https://status.muc.azubi.server.lan")
+
 
     args = parser.parse_args().__dict__
     log_level = args["log"].upper()
@@ -38,6 +49,12 @@ def init():
     mm_vmid = args["vmid"]
     global mm_phase
     mm_phase = args["phase"]
+    global uptime_user
+    uptime_user = args["username"]
+    global uptime_pass
+    uptime_pass = args["password"]
+    global uptime_url
+    uptime_url = args["url"]
 
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
@@ -47,7 +64,7 @@ def init():
         logging.critical(
             "LogLevel: " + str(log_level) +
             ' is not valid! Please enter NOTHING or a VALID option!'
-            ' See example.env or docs!')
+            ' See docs for help!')
         sys.exit()
 
     # Check if log_level is set
@@ -56,7 +73,7 @@ def init():
     if mm_phase not in ["START", "END"]:
         logging.critical(
             'Phase was not set correctly!'
-            ' See example.env or docs!')
+            ' See docs for help!')
         sys.exit()
 
     # Set logging
@@ -72,21 +89,21 @@ def init():
 
     # Check if Host is set
     if mm_vmid is None:
-        logging.critical("No maintenance mode host set… exiting")
+        logging.critical("No maintenance mode host set… exiting...")
         sys.exit()
     else:
         print("vmid: " + mm_vmid)
 
     # Login to Uptime Kuma
     try:
-        api = UptimeKumaApi(os.getenv("UPTIME_URL"))
-        api.login(os.getenv('UPTIME_USER'), os.getenv("UPTIME_PASS"))
+        api = UptimeKumaApi(uptime_url)
+        api.login(uptime_user, uptime_pass)
         # Login by token is not working for some reason?
         #api.login_by_token(os.getenv("UPTIME_TOKEN"))
         logging.debug("API INFO: " + str(api.info()))
     except:
         logging.error("There was an error while trying to login."
-                      " Pleas check your envs (see example.env)")
+                      " For more help check readMes")
         sys.exit()
 
 def get_mm():
@@ -105,7 +122,7 @@ def parse_mm(mm_id, mm_description, title):
         last_match = matches[-1]
         change_mm(last_match, mm_id, title)
     else:
-        logging.critical("No match found exiting…")
+        logging.critical("No match found exiting...")
 
 def change_mm(last_match, mm_id, title):
     if last_match == mm_vmid:
@@ -119,7 +136,7 @@ def change_mm(last_match, mm_id, title):
                          + " Name: " + title)
     else:
         logging.critical("Last match: " + last_match + " is not matching: "
-                     + mm_vmid + ". Exiting…")
+                     + mm_vmid + ". Exiting...")
 
 def main():
     init()

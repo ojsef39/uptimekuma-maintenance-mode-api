@@ -35,6 +35,7 @@ $phase eq 'log-end' ) {
     print "HOOK: Nothing to do here $phase\n";
 
 } elsif ($phase eq 'backup-start') {
+if ($phase eq 'job-init' || $phase eq 'job-start' || $phase eq 'backup-start' ||$phase eq 'pre-restart' || $phase eq 'post-restart' || $phase eq 'pre-stop') {
 
     # if backup is finished -> start maintenance mode
     print("HOOK: Running $phase uptime.py (START)\n");
@@ -43,6 +44,7 @@ $phase eq 'log-end' ) {
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 
 } elsif ($phase eq 'pre-stop' || $phase eq 'backup-end' || $phase eq 'backup-abort') {
+} elsif ($phase eq 'backup-end' || $phase eq 'job-end' || $phase eq 'job-abort' || $phase eq 'backup-abort' || $phase eq 'log-end') {
 
     # if backup is finished -> stop maintenance mode
     print("HOOK: Running $phase uptime.py (END)\n");

@@ -20,7 +20,6 @@ my $hostname = $ENV{HOSTNAME};
 # check if phase "job*" is active
 if ($phase eq 'pre-restart' ||
 $phase eq 'post-restart' ||
-$phase eq 'pre-stop' ||
 $phase eq 'log-end') {
     print "HOOK: Nothing to do here $phase\n";
 

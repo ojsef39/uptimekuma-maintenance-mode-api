@@ -97,7 +97,7 @@ def init():
         logging.critical("No maintenance mode host set… exiting...")
         sys.exit()
     else:
-        print("vmid: " + mm_vmid)
+        print("HOOK: vmid: " + mm_vmid)
 
     # Login to Uptime Kuma
     if log_level == "DEBUG":

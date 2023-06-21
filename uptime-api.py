@@ -92,7 +92,7 @@ def init():
         logging.critical("No maintenance mode host set… exiting...")
         sys.exit()
     else:
-        print("vmid: " + mm_vmid)
+        print("HOOK: vmid: " + mm_vmid)
 
     # Login to Uptime Kuma
     try:
@@ -116,27 +116,21 @@ def get_mm():
 
 def parse_mm(mm_id, mm_description, title):
     # match "#example" and "#ex-ample"
-    matches = re.findall(r"#([\w-]+)", mm_description)
+    match_tag = re.findall(r"#([\w-]+)", mm_description)
     #get only last match
-    if matches:
-        last_match = matches[-1]
-        change_mm(last_match, mm_id, title)
-    else:
-        logging.critical("No match found exiting...")
+    for tag in match_tag:
+        change_mm(tag, mm_id, title)
 
 def change_mm(last_match, mm_id, title):
     if last_match == mm_vmid:
         if mm_phase == "START":
             api.resume_maintenance(mm_id)
-            logging.info("Resumed maintenance mode ID: " + str(mm_id)
+            print("HOOK: Resumed maintenance mode ID: " + str(mm_id)
                          + " Name: " + title)
         elif mm_phase == "END":
             api.pause_maintenance(mm_id)
-            logging.info("Pausing maintenance mode ID: " + str(mm_id)
+            print("HOOK: Pausing maintenance mode ID: " + str(mm_id)
                          + " Name: " + title)
-    else:
-        logging.critical("Last match: " + last_match + " is not matching: "
-                     + mm_vmid + ". Exiting...")
 
 def main():
     init()

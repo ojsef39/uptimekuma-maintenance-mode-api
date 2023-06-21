@@ -16,9 +16,6 @@ You can test if the hook works with (you need a maintenance with #995 in the des
 
 `HOSTNAME=test /var/lib/vz/snippets/script-runner-uptime-api.pl backup-start/end`
 
-Requirements (at least until built version is available):
-- `pip install uptime_kuma_api`
-
 ### Please note: ###
 
 The hook runs following command: `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END'"`, so 

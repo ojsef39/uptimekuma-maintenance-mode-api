@@ -3,12 +3,14 @@ import logging
 import re
 import sys
 import os
-from uptime_kuma_api import UptimeKumaApi
 
 #Maintenance mode will be abbreviated to MM
 # e.g. search_maintenance_mode will be search_mm
 
 def init():
+    # import uptime_kuma_api after requirements were checked
+    from uptime_kuma_api import UptimeKumaApi
+
     global api
 
     parser = argparse.ArgumentParser(prog='Uptime-API-Maintenance-mode',
@@ -34,7 +36,6 @@ def init():
     log_level = args["log"].upper()
     global mm_vmid
     mm_vmid = args["vmid"]
-    print("vmid: " + mm_vmid)
     global mm_phase
     mm_phase = args["phase"]
 
@@ -63,18 +64,18 @@ def init():
     # Check if logging is accepting set log_level
     if not isinstance(loglevel_err, int):
         raise ValueError('Invalid log level: %s' % log_level)
-    logging.basicConfig(filename='uptime-api.log',
-                        filemode='a',
-                        level=log_level,
+    logging.basicConfig(level=log_level,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     # Display set log_level
-    logging.info("START OF LOG")
+    #logging.info("START OF LOG")
     logging.info("LogLevel is set to: " + log_level)
 
     # Check if Host is set
     if mm_vmid is None:
         logging.critical("No maintenance mode host set… exiting")
         sys.exit()
+    else:
+        print("vmid: " + mm_vmid)
 
     # Login to Uptime Kuma
     try:
@@ -84,10 +85,8 @@ def init():
         #api.login_by_token(os.getenv("UPTIME_TOKEN"))
         logging.debug("API INFO: " + str(api.info()))
     except:
-        logging.error("There was an error while trying to login. Please try "
-                      "again.")
-        if log_level == "DEBUG":
-            raise
+        logging.error("There was an error while trying to login."
+                      " Pleas check your envs (see example.env)")
         sys.exit()
 
 def get_mm():

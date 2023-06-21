@@ -5,6 +5,9 @@ For feature requests or bugs/issues please create an [issue](https://gitlab.azub
 
 Logs are created in the file `uptime-api.log` in the same directory as the script
 
+Requirements (at least until built version is available):
+- `pip install uptime_kuma_api`
+
 ### Options: ###
 #### Environmental: ####
 see example.env

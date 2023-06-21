@@ -23,10 +23,13 @@ my $hostname = $ENV{HOSTNAME};
 # check if phase "job*" is active
 if ($phase eq 'pre-restart' ||
 $phase eq 'post-restart' ||
-$phase eq 'log-end') {
+$phase eq 'pre-start' ||
+$phase eq 'post-start' ||
+$phase eq 'log-end' ||
+$phase eq 'pre-stop') {
     print "HOOK: Nothing to do here $phase\n";
 
-} elsif ($phase eq 'pre-start' || $phase eq 'post-start' || $phase eq 'backup-start' || $phase eq 'pre-stop') {
+} elsif ($phase eq 'backup-start') {
 
     # if backup is finished -> start maintenance mode
     print("HOOK: Running $phase uptime.py (START)\n");

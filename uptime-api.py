@@ -3,12 +3,14 @@ import logging
 import re
 import sys
 import os
-from uptime_kuma_api import UptimeKumaApi
 
 #Maintenance mode will be abbreviated to MM
 # e.g. search_maintenance_mode will be search_mm
 
 def init():
+    # import uptime_kuma_api after requirements were checked
+    from uptime_kuma_api import UptimeKumaApi
+
     global api
 
     parser = argparse.ArgumentParser(prog='Uptime-API-Maintenance-mode',
@@ -94,6 +96,8 @@ def init():
     if mm_vmid is None:
         logging.critical("No maintenance mode host set… exiting...")
         sys.exit()
+    else:
+        print("vmid: " + mm_vmid)
 
     # Login to Uptime Kuma
     try:

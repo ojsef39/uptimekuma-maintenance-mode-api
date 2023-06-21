@@ -103,7 +103,7 @@ def init():
         logging.debug("API INFO: " + str(api.info()))
     except:
         logging.error("There was an error while trying to login."
-                      " For more help check readMes")
+                      " For more help check readME")
         sys.exit()
 
 def get_mm():

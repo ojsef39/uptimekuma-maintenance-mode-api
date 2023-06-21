@@ -25,7 +25,9 @@ Requirements (at least until built version is available):
 ### Usage example: ###
 In Proxmox the hostname of the VM thats currently is being backed up is "evergreen".
 
-So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 uptime-kuma-api.py --vmid="995" --phase="start"` then
-the script tries to match a maintenance mode to the given host.
+So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' -u=$username' -p=$password'"` then
+the script tries to match a maintenance mode to the given tag (`#995`).
 
 To do this. Add `#vmid` so in this case `#995` to the maintenance description.
+
+For single Maintenance mode use eg. for a backup schedule, you can use overwrite (see ReadME in `use-with-proxmox` folder)

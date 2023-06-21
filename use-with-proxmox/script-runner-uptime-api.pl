@@ -40,7 +40,7 @@ $phase eq 'log-end' ) {
     system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='START' --status=$status -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 
-} elsif ($phase eq 'backup-end' || $phase eq 'backup-abort') {
+} elsif ($phase eq 'pre-stop' || $phase eq 'backup-end' || $phase eq 'backup-abort') {
 
     # if backup is finished -> stop maintenance mode
     print("HOOK: Running $phase uptime.py (END)\n");

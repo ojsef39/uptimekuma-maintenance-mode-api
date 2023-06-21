@@ -3,12 +3,7 @@
 ### Python script to control maintenance modes in Uptime-Kuma ###
 For feature requests or bugs/issues please create an [issue](https://gitlab.azubi.server.lan/lwsops-muc/uptimekuma-maintenance-mode-api/-/issues).
 
-Status of current Backup is shown in the MM title like: "Your MM Title (Status: Backing up VM 995)"
-
-Logs are shown in the proxmox log.
-
-Requirements:
-- `pip install uptime_kuma_api`
+Logs are created in the file `uptime-api.log` in the same directory as the script
 
 Requirements (at least until built version is available):
 - `pip install uptime_kuma_api`
@@ -36,5 +31,9 @@ So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `
 the script tries to match a maintenance mode to the given tag (`#995`). 
 
 Every MM with the specified tag in the description will be activated.
+So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' -u=$username' -p=$password'"` then
+the script tries to match a maintenance mode to the given tag (`#995`).
 
 To do this. Add `#vmid` so in this case `#995` to the maintenance description.
+
+For single Maintenance mode use eg. for a backup schedule, you can use overwrite (see ReadME in `use-with-proxmox` folder)

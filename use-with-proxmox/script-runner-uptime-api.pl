@@ -37,6 +37,7 @@ $phase eq 'log-end' ) {
 
     # if backup is finished -> start maintenance mode
     print("HOOK: Running $phase uptime.py (START)\n");
+    ## TOOD: Find out which user runs this so its ensured uptime_kuma_api is installed
     system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='START' --status=$status -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 
@@ -44,6 +45,7 @@ $phase eq 'log-end' ) {
 
     # if backup is finished -> stop maintenance mode
     print("HOOK: Running $phase uptime.py (END)\n");
+    ## TOOD: Find out which user runs this so its ensured uptime_kuma_api is installed
     system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='END' --status=$status -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 

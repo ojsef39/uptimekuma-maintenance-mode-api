@@ -1,30 +1,54 @@
 #!/usr/bin/perl -w
 
 use strict;
+#LOGIN DATA
+my $username = "username";
+my $password = "password";
 print "HOOK: " . join (' ', @ARGV) . "\n";
 # check for current "phase"
-my $vmid = shift;
+#TODO:Use of uninitialized value $phase in string eq at ./use-with-proxmox/script-runner-uptime-api.pl line 12. when only one arg is given (phase=vmid)
+#backup-start stop 995
 my $phase = shift;
+my $status = shift;
+my $vmid = shift;
+unless (defined $phase && defined $status && defined $vmid) {
+    print "HOOK: Nothing to do here $phase\n";
+    exit(0)
+}
 $phase = lc($phase);
+$status = lc($status);
 # get vm hostname
 my $hostname = $ENV{HOSTNAME};
 # check if phase "job*" is active
-if ($phase eq 'job-init' || $phase eq 'job-start' || $phase eq 'backup-start' ||$phase eq 'pre-restart' || $phase eq 'post-restart') {
+if ($phase eq 'pre-restart' ||
+$phase eq 'post-restart' ||
+$phase eq 'pre-start' ||
+$phase eq 'post-start' ||
+$phase eq 'pre-stop' ||
+$phase eq 'job-init' ||
+$phase eq 'job-start' ||
+$phase eq 'stop' ||
+$phase eq 'job-end' ||
+$phase eq 'job-abort' ||
+$phase eq 'log-end' ) {
+    print "HOOK: Nothing to do here $phase\n";
 
-    # if backup is starting -> start maintenance mode
-    print("Running uptime.py (START)\n");
-    system ("python3 /root/uptime-api.py --vmid=$vmid --phase='START'") == 0 ||
-    die "Running uptime-api.py script at backup-start failed";
+} elsif ($phase eq 'backup-start') {
 
-} elsif ($phase eq 'backup-end' || $phase eq 'job-end' || $phase eq 'job-abort' || $phase eq 'backup-abort' || $phase eq 'log-end' || $phase eq 'pre-stop') {
+    # if backup is finished -> start maintenance mode
+    print("HOOK: Running $phase uptime.py (START)\n");
+    system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='START' --status=$status -u=$username -p=$password") == 0 ||
+    die "HOOK: Running uptime-api.py script at $phase failed\n";
+
+} elsif ($phase eq 'backup-end' || $phase eq 'backup-abort') {
 
     # if backup is finished -> stop maintenance mode
-    print("Running uptime.py (END)\n");
-    system ("python3 /root/uptime-api.py --vmid=$vmid --phase='END'") == 0 ||
-    die "Running uptime-api.py script at backup-end failed";
+    print("HOOK: Running $phase uptime.py (END)\n");
+    system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='END' --status=$status -u=$username -p=$password") == 0 ||
+    die "HOOK: Running uptime-api.py script at $phase failed\n";
 
 } else {
 
-    die "got unknown phase '$phase'";
-    }
+    print "HOOK: got unknown phase '$phase'\n";
+}
 exit (0);

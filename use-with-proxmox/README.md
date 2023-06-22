@@ -3,18 +3,27 @@
 1. `mkdir /var/lib/vz/snippets`
 2. `cp /path/to/script-runner-uptime-api.pl /var/lib/vz/snippets/`
 3. `chmod +x /var/lib/vz/snippets/script-runner-uptime-api.pl`
+4. customize it to your needs -> `$username`, `$password`
 
-Now set following command in proxmox for every VM/CT you want to run this script for:
+Add `script /var/lib/vz/snippets/script-runner-uptime-api.pl` to `/etc/pve/jobs.cfg` like this:
+````
+vzdump: backup-########-####
+schedule sun 01:00
+compress zstd
+enabled 1
+mailnotification always
+mode stop
+node oasis
+notes-template {{guestname}}
+script /var/lib/vz/snippets/script-runner-uptime-api.pl
+storage backups
+vmid 999`
+````
+You can test if the hook works with (you need a maintenance with #995 in the description):
 
-`/usr/sbin/qm set 100 --hookscript local:snippets/script-runner-uptime-api.pl` (100 = VMID)
+`/var/lib/vz/snippets/script-runner-uptime-api.pl backup-start/end stop 995`
 
-Check if hook is set:
+### Please note: ###
 
-`/usr/sbin/qm config 995`
-
-You can test if the hook works with (you need a maintenance with #test in the description):
-
-`HOSTNAME=test /var/lib/vz/snippets/script-runner-uptime-api.pl backup-start/end`
-
-Requirements (at least until built version is available):
-- `pip install uptime_kuma_api`
+The hook runs following command: `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' --status=$status -u=$username' -p=$password'"`, so 
+please ensure the `uptime-api.py` can be found in `/root/uptime-api.py`

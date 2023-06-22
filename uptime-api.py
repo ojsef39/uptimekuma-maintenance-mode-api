@@ -29,14 +29,35 @@ def init():
     parser.add_argument('--phase',
                         default=None,
                         help="Set phase to start or stop maintenance mode.")
+    parser.add_argument('--status',
+                        default=None,
+                        help="Set backup status.")
+    parser.add_argument('-u',
+                        '--username',
+                        default=None,
+                        help="Set uptime username (In the future token login will be possible)")
+    parser.add_argument('-p',
+                        '--password',
+                        default=None,
+                        help="Set uptime password (In the future token login will be possible)")
+    parser.add_argument('--url',
+                        default="https://status.muc.azubi.server.lan")
+
 
     args = parser.parse_args().__dict__
     log_level = args["log"].upper()
     global mm_vmid
     mm_vmid = args["vmid"]
-    print("vmid: " + mm_vmid)
     global mm_phase
     mm_phase = args["phase"]
+    global mm_status
+    mm_status = args["status"]
+    global uptime_user
+    uptime_user = args["username"]
+    global uptime_pass
+    uptime_pass = args["password"]
+    global uptime_url
+    uptime_url = args["url"]
 
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
@@ -46,7 +67,7 @@ def init():
         logging.critical(
             "LogLevel: " + str(log_level) +
             ' is not valid! Please enter NOTHING or a VALID option!'
-            ' See example.env or docs!')
+            ' See docs for help!')
         sys.exit()
 
     # Check if log_level is set
@@ -55,7 +76,7 @@ def init():
     if mm_phase not in ["START", "END"]:
         logging.critical(
             'Phase was not set correctly!'
-            ' See example.env or docs!')
+            ' See docs for help!')
         sys.exit()
 
     # Set logging
@@ -63,31 +84,27 @@ def init():
     # Check if logging is accepting set log_level
     if not isinstance(loglevel_err, int):
         raise ValueError('Invalid log level: %s' % log_level)
-    logging.basicConfig(filename='uptime-api.log',
-                        filemode='a',
-                        level=log_level,
+    logging.basicConfig(level=log_level,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     # Display set log_level
-    logging.info("START OF LOG")
+    #logging.info("START OF LOG")
     logging.info("LogLevel is set to: " + log_level)
 
     # Check if Host is set
     if mm_vmid is None:
-        logging.critical("No maintenance mode host set… exiting")
+        logging.critical("No maintenance mode host set… exiting...")
         sys.exit()
 
     # Login to Uptime Kuma
     try:
-        api = UptimeKumaApi(os.getenv("UPTIME_URL"))
-        api.login(os.getenv('UPTIME_USER'), os.getenv("UPTIME_PASS"))
+        api = UptimeKumaApi(uptime_url)
+        api.login(uptime_user, uptime_pass)
         # Login by token is not working for some reason?
         #api.login_by_token(os.getenv("UPTIME_TOKEN"))
         logging.debug("API INFO: " + str(api.info()))
     except:
-        logging.error("There was an error while trying to login. Please try "
-                      "again.")
-        if log_level == "DEBUG":
-            raise
+        logging.error("There was an error while trying to login."
+                      " For more help check readME")
         sys.exit()
 
 def get_mm():
@@ -98,29 +115,43 @@ def get_mm():
                       str(mm['title']) + ", Desc: " + str(mm['description']))
         parse_mm(mm['id'], mm['description'], mm['title'])
 
-def parse_mm(mm_id, mm_description, title):
+def parse_mm(mm_id, mm_description, mm_title):
     # match "#example" and "#ex-ample"
-    matches = re.findall(r"#([\w-]+)", mm_description)
+    match_tag = re.findall(r"#([\w-]+)", mm_description)
     #get only last match
-    if matches:
-        last_match = matches[-1]
-        change_mm(last_match, mm_id, title)
-    else:
-        logging.critical("No match found exiting…")
+    for tag in match_tag:
+        change_mm(tag, mm_id, mm_title)
 
-def change_mm(last_match, mm_id, title):
+def change_mm(last_match, mm_id, mm_title):
     if last_match == mm_vmid:
         if mm_phase == "START":
             api.resume_maintenance(mm_id)
-            logging.info("Resumed maintenance mode ID: " + str(mm_id)
-                         + " Name: " + title)
+            change_mm_title(mm_id, mm_title)
+            print("HOOK: Resumed maintenance mode ID: " + str(mm_id)
+                  + " Name: " + mm_title)
         elif mm_phase == "END":
             api.pause_maintenance(mm_id)
-            logging.info("Pausing maintenance mode ID: " + str(mm_id)
-                         + " Name: " + title)
-    else:
-        logging.critical("Last match: " + last_match + " is not matching: "
-                     + mm_vmid + ". Exiting…")
+            change_mm_title(mm_id, mm_title)
+            print("HOOK: Pausing maintenance mode ID: " + str(mm_id)
+                  + " Name: " + mm_title)
+
+def change_mm_title(mm_id, mm_title):
+    if mm_phase == "START":
+        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+        if status_start_index != -1:
+            mm_title = mm_title[:status_start_index]
+        changed_title = mm_title +  " (Status: Backing up VM " + mm_vmid + ")"
+        api.edit_maintenance(mm_id,
+                             title=changed_title)
+        logging.debug("Changed MM Title to: " + changed_title)
+    elif mm_phase == "END":
+        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+        if status_start_index != -1:
+            changed_title = mm_title[:status_start_index]
+            api.edit_maintenance(mm_id,
+                                 title=changed_title)
+            logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+
 
 def main():
     init()

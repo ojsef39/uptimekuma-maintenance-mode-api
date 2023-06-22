@@ -16,6 +16,8 @@ Requirements (at least until built version is available):
 
 `--phase`: "START", "END". Tells script to start or stop maintenance mode.
 
+`--status`: Set backup status.
+
 `-u`, `--username`: "Uptime Kuma Username"
 
 `-p`, `--password`: "Uptime Kuma Password (Token login will be added in future)"
@@ -25,8 +27,8 @@ Requirements (at least until built version is available):
 ### Usage example: ###
 In Proxmox the hostname of the VM thats currently is being backed up is "evergreen".
 
-So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' -u=$username' -p=$password'"` then
-the script tries to match a maintenance mode to the given tag (`#995`).
+So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' --status=$status -u=$username' -p=$password'"` then
+the script tries to match a maintenance mode to the given tag (`#995`). (All MMs with the same # will be activated)
 
 To do this. Add `#vmid` so in this case `#995` to the maintenance description.
 

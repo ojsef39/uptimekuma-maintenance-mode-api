@@ -25,8 +25,13 @@ if ($phase eq 'pre-restart' ||
 $phase eq 'post-restart' ||
 $phase eq 'pre-start' ||
 $phase eq 'post-start' ||
-$phase eq 'log-end' ||
-$phase eq 'pre-stop') {
+$phase eq 'pre-stop' ||
+$phase eq 'job-init' ||
+$phase eq 'job-start' ||
+$phase eq 'stop' ||
+$phase eq 'job-end' ||
+$phase eq 'job-abort' ||
+$phase eq 'log-end' ) {
     print "HOOK: Nothing to do here $phase\n";
 
 } elsif ($phase eq 'backup-start') {

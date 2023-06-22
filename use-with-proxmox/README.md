@@ -7,7 +7,7 @@
 
 Add `script /var/lib/vz/snippets/script-runner-uptime-api.pl` to `/etc/pve/jobs.cfg` like this:
 ````
-vzdump: backup-36d2e390-47e9
+vzdump: backup-########-####
 schedule sun 01:00
 compress zstd
 enabled 1

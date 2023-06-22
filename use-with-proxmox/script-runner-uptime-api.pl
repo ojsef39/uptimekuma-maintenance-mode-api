@@ -4,12 +4,13 @@ use strict;
 #LOGIN DATA
 my $username = "username";
 my $password = "password";
+my $status = "Backing up VM"; # = Your MM Title (Status: Backing up VM 995)
 print "HOOK: " . join (' ', @ARGV) . "\n";
 # check for current "phase"
 #TODO:Use of uninitialized value $phase in string eq at ./use-with-proxmox/script-runner-uptime-api.pl line 12. when only one arg is given (phase=vmid)
 #backup-start stop 995
 my $phase = shift;
-my $status = shift;
+my $stop = shift;
 my $vmid = shift;
 unless (defined $phase && defined $status && defined $vmid) {
     print "HOOK: Nothing to do here $phase\n";

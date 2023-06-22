@@ -115,23 +115,43 @@ def get_mm():
                       str(mm['title']) + ", Desc: " + str(mm['description']))
         parse_mm(mm['id'], mm['description'], mm['title'])
 
-def parse_mm(mm_id, mm_description, title):
+def parse_mm(mm_id, mm_description, mm_title):
     # match "#example" and "#ex-ample"
     match_tag = re.findall(r"#([\w-]+)", mm_description)
     #get only last match
     for tag in match_tag:
-        change_mm(tag, mm_id, title)
+        change_mm(tag, mm_id, mm_title)
 
-def change_mm(last_match, mm_id, title):
+def change_mm(last_match, mm_id, mm_title):
     if last_match == mm_vmid:
         if mm_phase == "START":
             api.resume_maintenance(mm_id)
+            change_mm_title(mm_id, mm_title)
             print("HOOK: Resumed maintenance mode ID: " + str(mm_id)
-                         + " Name: " + title)
+                  + " Name: " + mm_title)
         elif mm_phase == "END":
             api.pause_maintenance(mm_id)
+            change_mm_title(mm_id, mm_title)
             print("HOOK: Pausing maintenance mode ID: " + str(mm_id)
-                         + " Name: " + title)
+                  + " Name: " + mm_title)
+
+def change_mm_title(mm_id, mm_title):
+    if mm_phase == "START":
+        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+        if status_start_index != -1:
+            mm_title = mm_title[:status_start_index]
+        changed_title = mm_title +  " (Status: Backing up VM " + mm_vmid + ")"
+        api.edit_maintenance(mm_id,
+                             title=changed_title)
+        logging.debug("Changed MM Title to: " + changed_title)
+    elif mm_phase == "END":
+        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+        if status_start_index != -1:
+            changed_title = mm_title[:status_start_index]
+            api.edit_maintenance(mm_id,
+                                 title=changed_title)
+            logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+
 
 def main():
     init()

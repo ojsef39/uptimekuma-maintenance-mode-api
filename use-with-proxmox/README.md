@@ -17,7 +17,7 @@ node oasis
 notes-template {{guestname}}
 script /var/lib/vz/snippets/script-runner-uptime-api.pl
 storage backups
-vmid 999`
+vmid 995`
 ````
 You can test if the hook works with (you need a maintenance with #995 in the description):
 

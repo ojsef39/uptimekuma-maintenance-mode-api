@@ -3,7 +3,7 @@
 1. `mkdir /var/lib/vz/snippets`
 2. `cp /path/to/script-runner-uptime-api.pl /var/lib/vz/snippets/`
 3. `chmod +x /var/lib/vz/snippets/script-runner-uptime-api.pl`
-4. customize it to your needs -> `$username`, `$password`
+4. customize it to your needs -> `$username`, `$password`, `$status` 
 
 Add `script /var/lib/vz/snippets/script-runner-uptime-api.pl` to `/etc/pve/jobs.cfg` like this:
 ````

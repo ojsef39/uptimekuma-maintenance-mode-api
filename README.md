@@ -18,7 +18,7 @@ Requirements:
 
 `--phase`: "START", "END". Tells script to start or stop maintenance mode.
 
-`--status`: Set backup status.
+`--status`: Set backup status e.g. "Backing up VM" for "Your VM Title (Status: Backing up VM `#995`"
 
 `-u`, `--username`: "Uptime Kuma Username"
 

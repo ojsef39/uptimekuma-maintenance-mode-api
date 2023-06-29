@@ -30,8 +30,7 @@ $phase eq 'job-init' ||
 $phase eq 'job-start' ||
 $phase eq 'stop' ||
 $phase eq 'job-end' ||
-$phase eq 'job-abort' ||
-$phase eq 'log-end' ) {
+$phase eq 'job-abort') {
     print "HOOK: Nothing to do here $phase\n";
 
 } elsif ($phase eq 'backup-start') {
@@ -48,6 +47,14 @@ $phase eq 'log-end' ) {
     print("HOOK: Running $phase uptime.py (END)\n");
     ## TOOD: Find out which user runs this so its ensured uptime_kuma_api is installed
     system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='END' --status=$status -u=$username -p=$password") == 0 ||
+    die "HOOK: Running uptime-api.py script at $phase failed\n";
+
+} elsif ($phase eq 'log-end') {
+
+    # if backup is finished wait until host is back online
+    print("HOOK: Running $phase uptime.py (LOG/WAIT)\n");
+    ## TOOD: Find out which user runs this so its ensured uptime_kuma_api is installed
+    system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='LOG-WAIT' --status=$status -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 
 } else {

@@ -73,7 +73,7 @@ def init():
     # Check if log_level is set
     if mm_phase is not None:
         mm_phase = mm_phase.upper()
-    if mm_phase not in ["START", "END"]:
+    if mm_phase not in ["START", "END", "LOG-WAIT"]:
         logging.critical(
             'Phase was not set correctly!'
             ' See docs for help!')

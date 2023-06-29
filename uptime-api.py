@@ -30,7 +30,7 @@ def init():
                         default=None,
                         help="Set phase to start or stop maintenance mode.")
     parser.add_argument('--status',
-                        default=None,
+                        default="Backing up VM",
                         help="Set backup status.")
     parser.add_argument('-u',
                         '--username',
@@ -96,15 +96,21 @@ def init():
         sys.exit()
 
     # Login to Uptime Kuma
+    if log_level == "DEBUG":
+        ssl_verify = False
+    else:
+        ssl_verify = True
+
     try:
-        api = UptimeKumaApi(uptime_url)
+        api = UptimeKumaApi(uptime_url, ssl_verify=ssl_verify)
         api.login(uptime_user, uptime_pass)
         # Login by token is not working for some reason?
         #api.login_by_token(os.getenv("UPTIME_TOKEN"))
         logging.debug("API INFO: " + str(api.info()))
     except:
         logging.error("There was an error while trying to login."
-                      " For more help check readME")
+                      " For more help check readME ")
+        raise
         sys.exit()
 
 def get_mm():
@@ -140,7 +146,7 @@ def change_mm_title(mm_id, mm_title):
         status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
         if status_start_index != -1:
             mm_title = mm_title[:status_start_index]
-        changed_title = mm_title +  " (Status: " + mm_status + " " + mm_vmid + ")"
+        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(mm_vmid) + ")"
         api.edit_maintenance(mm_id,
                              title=changed_title)
         logging.debug("Changed MM Title to: " + changed_title)

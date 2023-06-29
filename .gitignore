@@ -162,3 +162,22 @@ cython_debug/
 #.idea/
 
 !/.env
+.vscode/settings.json
+.idea/discord.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/uptimekuma-maintenance-mode-api.iml
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/sonarlint/issuestore/index.pb
+.idea/sonarlint/issuestore/0/c/0c2391f6fc8a74548f62a9c50e865410d7d0f546
+.idea/sonarlint/issuestore/7/8/7845bcdf636ab5ed43624a573d25fe09eddec9e1
+.idea/sonarlint/issuestore/8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+.idea/sonarlint/issuestore/f/c/fc755819553917f7dfb7ecace56f0522bc89152d
+.idea/sonarlint/securityhotspotstore/index.pb
+.idea/sonarlint/securityhotspotstore/0/c/0c2391f6fc8a74548f62a9c50e865410d7d0f546
+.idea/sonarlint/securityhotspotstore/7/8/7845bcdf636ab5ed43624a573d25fe09eddec9e1
+.idea/sonarlint/securityhotspotstore/8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+.idea/sonarlint/securityhotspotstore/f/c/fc755819553917f7dfb7ecace56f0522bc89152d
+.DS_Store

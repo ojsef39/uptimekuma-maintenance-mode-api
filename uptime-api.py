@@ -1,8 +1,10 @@
 import argparse
 import logging
 import re
+import socket
 import sys
 import os
+import time
 from uptime_kuma_api import UptimeKumaApi
 from proxmoxer import ProxmoxAPI
 
@@ -124,18 +126,38 @@ def init():
 # Use proxmox api to bin vmid to hostnames and ips
 def bind_mm_to_host_and_ip():
     global hostname
+    global ip_address
 
     try:
         prox_api = ProxmoxAPI(
             ##TODO: Add pw, user, host to args -> and let user change it via variables like $status
             "oasis.muc.azubi.server.lan:443", user="uptime_service@pve", password="MJP54Hny4P%PeJG", verify_ssl=False
         )
+        
+        # Get ip from hostname
+        try:
+            # Try qemu first, if it fails try lxc
+            vm = prox_api.nodes("oasis").qemu(mm_vmid)
+            network_interfaces = vm.agent('network-get-interfaces').get()
+            ip_address = network_interfaces ##TODO: Parse ip from network_interfaces
+            print("HOOK: IP found (PVEAPI): " + str(ip_address))
+        except:
+            vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
+            if vm is not None:
+                print(vm)
+                for config in vm:
+                    if config == "net0":
+                        print(config)
+                print(vm)
+                #TODO: Parse ip from vm config
+                #print("HOOK: IP found (PVEAPI): " + str(ip_address))
+                sys.exit()
 
+        # Get hostname from vmid
         try:
             vm = prox_api.nodes("oasis").qemu(mm_vmid).config.get()
         except Exception:
             vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
-        
         if vm is not None:
             try:
                 hostname = vm["name"]
@@ -146,8 +168,9 @@ def bind_mm_to_host_and_ip():
             logging.error("No hostname found for vmid: " + str(mm_vmid))
             sys.exit()
 
+
     except:
-        # raise ## uncomment to see full error
+        raise ## uncomment to see full error
         logging.error("There was an error while using proxmox api.")
         sys.exit()
 
@@ -182,10 +205,21 @@ def change_mm(last_match, mm_id, mm_title):
             print("HOOK: Resumed (end) maintenance mode ID: " + str(mm_id)
                   + " Name: " + mm_title)
         elif mm_phase == "LOG-WAIT":            
-            bind_mm_to_host_and_ip()
+            api.resume_maintenance(mm_id)
             change_mm_title(mm_id, mm_title)
             api.pause_maintenance(mm_id)
             print("HOOK: Paused (log-wait) maintenance mode ID: " + str(mm_id))
+
+def clear_mm_title(mm_id, mm_title):
+    
+    status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+    if status_start_index != -1:
+        mm_title = mm_title[:status_start_index]
+    changed_title = mm_title
+    api.edit_maintenance(mm_id,
+                            title=changed_title)
+    logging.debug("Changed MM Title to: " + changed_title)
+
 
 def change_mm_title(mm_id, mm_title):
 
@@ -193,28 +227,41 @@ def change_mm_title(mm_id, mm_title):
         status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
         if status_start_index != -1:
             mm_title = mm_title[:status_start_index]
-        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(mm_vmid) + ")"
+        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(hostname) + ")"
         api.edit_maintenance(mm_id,
                              title=changed_title)
         logging.debug("Changed MM Title to: " + changed_title)
     elif mm_phase == "END":
         status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
         if status_start_index != -1:
-            changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(mm_vmid) + ")"
-            api.edit_maintenance(mm_id,
-                                 title=changed_title)
-            logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+            mm_title = mm_title[:status_start_index]
+        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
+        api.edit_maintenance(mm_id,
+                             title=changed_title)
+        logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
     elif mm_phase == "LOG-WAIT":
+        ## Show that its waiting for the host to be up again
         status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
         if status_start_index != -1:
-            changed_title = mm_title[:status_start_index]
-            api.edit_maintenance(mm_id,
-                                 title=changed_title)
-            logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+            mm_title = mm_title[:status_start_index]
+        changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
+        api.edit_maintenance(mm_id,
+                             title=changed_title)
+        logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+        ##TODO: Add function to check if host is up again
+        logging.debug("Waiting for host to be up again...")
+        is_host_up()
+        ## Host is up again, end maintenance mode
+        clear_mm_title(mm_id, mm_title)
+
+
+def is_host_up():
+    logging.debug("Checking if host is up again...")
 
 
 def main():
     init()
+    bind_mm_to_host_and_ip()
     get_mm()
     api.disconnect() # disconnect from api after use
     logging.debug("Script finished, api disconnected, END OF LOG!")

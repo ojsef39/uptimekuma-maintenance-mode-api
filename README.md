@@ -1,9 +1,10 @@
-# STILL WIP; BUT IT SHOULD WORK #
+# THIS PROJECT MOVED TO GITHUB!! (v4.5.4+ only on GitHub)
+https://github.com/ojsef39/uptimekuma-maintenance-mode-api
+## STILL WIP; BUT IT SHOULD WORK ##
 
 Use branch `master`! Default branch is `dev`__
-
 ### Python script to control maintenance modes in Uptime-Kuma ###
-For feature requests or bugs/issues please create an [GitLab issues (Internal only)](https://gitlab.azubi.server.lan/lwsops-muc/uptimekuma-maintenance-mode-api/-/issues) or [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
+For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
 
 Logs are created in the file `uptime-api.log` in the same directory as the script
 

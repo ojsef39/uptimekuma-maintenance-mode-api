@@ -151,18 +151,29 @@ def bind_mm_to_host_and_ip():
             # Try qemu first, if it fails try lxc
             vm = prox_api.nodes("oasis").qemu(mm_vmid)
             network_interfaces = vm.agent('network-get-interfaces').get()
-            ip_address = network_interfaces ##TODO: Parse ip from network_interfaces
-            print("HOOK: IP found (PVEAPI): " + str(ip_address))
+            ##TODO: if none
+            for ip_address_config in network_interfaces:
+                ip_address = ip_address_config['ip-addresses'][0]['ip-address']
+                break
+            print(ip_address)
+            sys.exit()
+            # print("HOOK: IP found (PVEAPI): " + str(ip_address))
         except:
+            sys.exit()
             vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
             if vm is not None:
-                print(vm)
                 for config in vm:
                     if config == "net0":
-                        print(config)
-                print(vm)
-                #TODO: Parse ip from vm config
-                #print("HOOK: IP found (PVEAPI): " + str(ip_address))
+                        net_config = vm[config]
+                        for item in net_config.split(','):
+                            if item.startswith('ip='):
+                                ip_address = item[3:] # Remove ip=
+                                ip_address = ip_address.split('/')[0] # Remove subnet
+                                break
+                print("HOOK: IP found (PVEAPI): " + str(ip_address))
+            
+            else:
+                logging.critical("No ip found for vmid: " + str(mm_vmid))
                 sys.exit()
 
         # Get hostname from vmid

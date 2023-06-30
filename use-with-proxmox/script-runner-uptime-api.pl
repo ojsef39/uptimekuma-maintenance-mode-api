@@ -4,8 +4,11 @@ use strict;
 #LOGIN DATA
 my $username = "username";
 my $password = "password";
-my $status = "Backing up VM";
-my $stop_status = ""; # = Your MM Title (Status: Backing up VM 995)
+my $prox_host = "proxmox-hostname"; ## Defaults to oasis.muc.azubi.server.lan:443
+my $prox_user = "proxmox-username"
+my $prox_pass = "proxmox-password"
+my $status = "Backing up VM"; # = Your MM Title (Status: Backing up VM 995)
+my $stop_status = "Stopping Backing up VM"; # = Your MM Title (Status: Stopping Backing up VM 995)
 print "HOOK: " . join (' ', @ARGV) . "\n";
 # check for current "phase"
 #TODO:Use of uninitialized value $phase in string eq at ./use-with-proxmox/script-runner-uptime-api.pl line 12. when only one arg is given (phase=vmid)
@@ -42,7 +45,7 @@ $phase eq 'job-abort') {
     system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='START' --status=$status --$stop_status -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 
-} elsif ($phase eq 'backup-end' || $phase eq 'backup-abort') {
+} elsif ($phase eq 'backup-end' || $phase eq 'backup-abort') { ##TODO: Diffrentiate between backup-end and backup-abort
 
     # if backup is finished -> stop maintenance mode
     print("HOOK: Running $phase uptime.py (END)\n");
@@ -55,7 +58,7 @@ $phase eq 'job-abort') {
     # if backup is finished wait until host is back online
     print("HOOK: Running $phase uptime.py (LOG/WAIT)\n");
     ## TOOD: Find out which user runs this so its ensured uptime_kuma_api is installed
-    system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='LOG-WAIT' --status=$status -u=$username -p=$password") == 0 ||
+    system ("sudo -u root python3 /root/uptime-api.py --vmid=$vmid --phase='LOG-WAIT' --status=$status --$stop_status -u=$username -p=$password") == 0 ||
     die "HOOK: Running uptime-api.py script at $phase failed\n";
 
 } else {

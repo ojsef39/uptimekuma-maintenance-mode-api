@@ -48,6 +48,12 @@ def init():
                         help="Set uptime password (In the future token login will be possible)")
     parser.add_argument('--url',
                         default="https://status.muc.azubi.server.lan")
+    parser.add_argument('--prox_host',
+                        default="oasis.muc.azubi.server.lan:443")
+    parser.add_argument('--prox_user',
+                        default=None)
+    parser.add_argument('--prox_pass',
+                        default=None)
 
 
     args = parser.parse_args().__dict__
@@ -66,6 +72,12 @@ def init():
     uptime_pass = args["password"]
     global uptime_url
     uptime_url = args["url"]
+    global prox_host
+    prox_host = args["prox_host"]
+    global prox_user
+    prox_user = args["prox_user"]
+    global prox_pass
+    prox_pass = args["prox_pass"]
 
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
@@ -131,7 +143,7 @@ def bind_mm_to_host_and_ip():
     try:
         prox_api = ProxmoxAPI(
             ##TODO: Add pw, user, host to args -> and let user change it via variables like $status
-            "oasis.muc.azubi.server.lan:443", user="uptime_service@pve", password="MJP54Hny4P%PeJG", verify_ssl=False
+            prox_host, user=prox_user, password=prox_pass, verify_ssl=False
         )
         
         # Get ip from hostname

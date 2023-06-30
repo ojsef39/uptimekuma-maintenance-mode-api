@@ -124,7 +124,7 @@ def init():
     
     # Login to Uptime Kuma
     try:
-        api = UptimeKumaApi(uptime_url, ssl_verify=ssl_verify)
+        api = UptimeKumaApi(url=uptime_url, ssl_verify=ssl_verify)
         api.login(uptime_user, uptime_pass)
         # Login by token is not working for some reason?
         #api.login_by_token(os.getenv("UPTIME_TOKEN"))
@@ -151,13 +151,14 @@ def bind_mm_to_host_and_ip():
             # Try qemu first, if it fails try lxc
             vm = prox_api.nodes("oasis").qemu(mm_vmid)
             network_interfaces = vm.agent('network-get-interfaces').get()
-            ##TODO: if none
-            for ip_address_config in network_interfaces:
-                ip_address = ip_address_config['ip-addresses'][0]['ip-address']
-                break
-            print(ip_address)
-            sys.exit()
-            # print("HOOK: IP found (PVEAPI): " + str(ip_address))
+            if network_interfaces is not None:
+                for statistics in network_interfaces["result"]:
+                    for ip_configs in statistics["ip-addresses"]:
+                        if ip_configs["ip-address-type"] == "ipv4" and ip_configs["ip-address"] != "127.0.0.1":
+                            print(ip_configs["ip-address"])
+                            break
+                sys.exit()
+                # print("HOOK: IP found (PVEAPI): " + str(ip_address))
         except:
             sys.exit()
             vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()

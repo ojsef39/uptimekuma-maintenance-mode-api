@@ -156,11 +156,9 @@ def bind_mm_to_host_and_ip():
                     for ip_configs in statistics["ip-addresses"]:
                         if ip_configs["ip-address-type"] == "ipv4" and ip_configs["ip-address"] != "127.0.0.1":
                             print(ip_configs["ip-address"])
+                            print("HOOK: IP found (PVEAPI): " + str(ip_address))
                             break
-                sys.exit()
-                # print("HOOK: IP found (PVEAPI): " + str(ip_address))
         except:
-            sys.exit()
             vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
             if vm is not None:
                 for config in vm:
@@ -170,8 +168,8 @@ def bind_mm_to_host_and_ip():
                             if item.startswith('ip='):
                                 ip_address = item[3:] # Remove ip=
                                 ip_address = ip_address.split('/')[0] # Remove subnet
+                                print("HOOK: IP found (PVEAPI): " + str(ip_address))
                                 break
-                print("HOOK: IP found (PVEAPI): " + str(ip_address))
             
             else:
                 logging.critical("No ip found for vmid: " + str(mm_vmid))

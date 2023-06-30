@@ -6,6 +6,10 @@ Use branch `master`! Default branch is `dev`__
 ### Python script to control maintenance modes in Uptime-Kuma ###
 For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
 
+Use branch `master`! Default branch is `dev`__
+### Python script to control maintenance modes in Uptime-Kuma ###
+For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
+
 Logs are created in the file `uptime-api.log` in the same directory as the script
 
 Requirements:

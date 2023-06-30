@@ -124,6 +124,7 @@ def get_mm():
 def parse_mm(mm_id, mm_description, mm_title):
     # match "#example" and "#ex-ample"
     match_tag = re.findall(r"#([\w-]+)", mm_description)
+    match_tag = re.findall(r"#([\w-]+)", mm_description)
     #get only last match
     for tag in match_tag:
         change_mm(tag, mm_id, mm_title)

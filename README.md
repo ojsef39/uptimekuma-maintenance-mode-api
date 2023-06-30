@@ -6,9 +6,11 @@ Use branch `master`! Default branch is `dev`__
 ### Python script to control maintenance modes in Uptime-Kuma ###
 For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
 
-Status of current Backup is shown in the MM title like: "Your MM Title (Status: Backing up VM 995)"
+Use branch `master`! Default branch is `dev`__
+### Python script to control maintenance modes in Uptime-Kuma ###
+For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
 
-Logs are shown in the proxmox log.
+Logs are created in the file `uptime-api.log` in the same directory as the script
 
 Requirements:
 - `pip install uptime_kuma_api`

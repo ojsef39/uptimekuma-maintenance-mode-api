@@ -1,10 +1,7 @@
 import argparse
 import logging
 import re
-import socket
 import sys
-import os
-import time
 from uptime_kuma_api import UptimeKumaApi
 from proxmoxer import ProxmoxAPI
 
@@ -140,7 +137,6 @@ def bind_mm_to_host_and_ip():
     global hostname
     global ip_address
     print(prox_pass)
-    sys.exit()
 
     try:
         prox_api = ProxmoxAPI(

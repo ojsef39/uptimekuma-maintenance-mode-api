@@ -2,7 +2,7 @@
 
 # Define variables
 REPO_URL="https://github.com/ojsef39/uptimekuma-maintenance-mode-api.git"
-TARGET_DIR="/root" ##TOOD: Change back to /root
+TARGET_DIR="/root"
 GIT_DIR="/tmp/uptimekuma-maintenance-mode-api"
 SNIPPETS_DIR="/var/lib/vz/snippets"
 PROXMOX=false

@@ -139,13 +139,16 @@ def init():
 def bind_mm_to_host_and_ip():
     global hostname
     global ip_address
+    print(prox_pass)
+    sys.exit()
 
     try:
         prox_api = ProxmoxAPI(
             ##TODO: Add pw, user, host to args -> and let user change it via variables like $status
+            #FIXME: Authentication Error: 
             prox_host, user=prox_user, password=prox_pass, verify_ssl=False
         )
-        
+
         # Get ip from hostname
         try:
             # Try qemu first, if it fails try lxc
@@ -155,10 +158,11 @@ def bind_mm_to_host_and_ip():
                 for statistics in network_interfaces["result"]:
                     for ip_configs in statistics["ip-addresses"]:
                         if ip_configs["ip-address-type"] == "ipv4" and ip_configs["ip-address"] != "127.0.0.1":
-                            print(ip_configs["ip-address"])
+                            ip_address = (ip_configs["ip-address"])
                             print("HOOK: IP found (PVEAPI): " + str(ip_address))
                             break
         except:
+            ##FIXME: 500 Internal Server Error: Configuration file 'nodes/oasis/lxc/995.conf' does not exist
             vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
             if vm is not None:
                 for config in vm:

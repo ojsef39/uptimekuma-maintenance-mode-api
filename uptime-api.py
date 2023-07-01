@@ -196,7 +196,7 @@ def bind_mm_to_host_and_ip():
         logging.error("There was an error while using proxmox api.")
         sys.exit()
 
-    ##TODO: Add ip binding to vmid
+    ##TODO: Check if ip binding works correctly for quemu and lxcs
                       
 
 def get_mm():

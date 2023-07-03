@@ -30,6 +30,13 @@ echo "HOOK: $@"
 # input from proxmox example: backup-start stop 995
 # FIXME: INFO: /var/lib/vz/snippets/script-runner-uptime-api.sh: 34: shift: can't shift that many
 # FIXME: TASK ERROR: command '/var/lib/vz/snippets/script-runner-uptime-api.sh job-init' failed: exit code 2
+
+# Not relevant for script
+if [ $# -lt 3 ]; then
+    echo "Error: This script requires at least three arguments."
+    exit 0
+fi
+
 phase=$1
 shift
 stop=$1

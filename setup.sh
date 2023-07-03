@@ -15,9 +15,9 @@
 
 # Define variables
 REPO_URL="https://github.com/ojsef39/uptimekuma-maintenance-mode-api.git"
-TARGET_DIR="/root"
-GIT_DIR="/tmp/uptimekuma-maintenance-mode-api"
-SNIPPETS_DIR="/var/lib/vz/snippets"
+TARGET_DIR="/root/"
+GIT_DIR="/tmp/uptimekuma-maintenance-mode-api/"
+SNIPPETS_DIR="/var/lib/vz/snippets/"
 PROXMOX=false
 DEV=false
 
@@ -50,17 +50,23 @@ if [ "$DEV" = true ]; then
     
     ## NEXT LINES FOR TESTING!
     echo "Status: Switching to branch"
+    cd "$GIT_DIR" # change to the directory that contains the Git repository
     git switch "dev-update-prepare"
     echo "Status: Pulling latest changes..."
     git reset --hard "dev-update-prepare"
     git pull
+    cd - # change back to the original directory
 fi
+
 
 # Move the python script to target directory and make it executable
 echo "Status: Moving python script to target directory: $TARGET_DIR..."
 # remove file before moving new one
-echo "Status: Removing file if it exists and moving new one..."
-rm -f "$TARGET_DIR/uptime-api.py"
+if [ -f "$TARGET_DIR/uptime-api.py" ]; then
+    echo "Status: Removing file"
+    rm -f "$TARGET_DIR/uptime-api.py"
+fi
+echo "Status: Moving new one..."
 mv "$GIT_DIR/uptime-api.py" "$TARGET_DIR"
 echo "Status: Making python script executable..."
 chmod +x "$TARGET_DIR/uptime-api.py"
@@ -74,8 +80,11 @@ if [ "$PROXMOX" = true ]; then
     # Move the Proxmox script to snippets directory and make it executable
     echo "Status: Moving Proxmox script to snippets directory: $SNIPPETS_DIR..."
     # remove file before moving new one
-    echo "Status: Removing file if it exists and moving new one..."
-    rm -f "$SNIPPETS_DIR/script-runner-uptime-api.sh"
+    if [ -f "$SNIPPETS_DIR/script-runner-uptime-api.sh" ]; then
+        echo "Status: Removing file"
+        rm -f "$SNIPPETS_DIR/script-runner-uptime-api.sh"
+    fi
+    echo "Status: Moving new one..."
     mv "$GIT_DIR/use-with-proxmox/script-runner-uptime-api.sh" "$SNIPPETS_DIR"
     echo "Status: Making Proxmox script executable..."
     chmod +x "$SNIPPETS_DIR/script-runner-uptime-api.sh"

@@ -28,6 +28,8 @@ echo "HOOK: $@"
 
 # check for current "phase"
 # input from proxmox example: backup-start stop 995
+# FIXME: INFO: /var/lib/vz/snippets/script-runner-uptime-api.sh: 34: shift: can't shift that many
+# FIXME: TASK ERROR: command '/var/lib/vz/snippets/script-runner-uptime-api.sh job-init' failed: exit code 2
 phase=$1
 shift
 stop=$1

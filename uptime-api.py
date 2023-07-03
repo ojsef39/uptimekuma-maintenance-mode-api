@@ -47,6 +47,8 @@ def init():
                         default="https://status.muc.azubi.server.lan")
     parser.add_argument('--prox_host',
                         default="oasis.muc.azubi.server.lan:443")
+    parser.add_argument('--node',
+                        default="oasis"),
     parser.add_argument('--prox_user',
                         default=None)
     parser.add_argument('--prox_pass',
@@ -71,6 +73,8 @@ def init():
     uptime_url = args["url"]
     global prox_host
     prox_host = args["prox_host"]
+    global node
+    node = args["node"]
     global prox_user
     prox_user = args["prox_user"]
     global prox_pass
@@ -129,14 +133,13 @@ def init():
     except:
         logging.error("There was an error while trying to login."
                       " For more help check readME ")
-        # raise  # uncomment to see full error
+        raise  # uncomment to see full error
         sys.exit()
 
 # Use proxmox api to bin vmid to hostnames and ips
 def bind_mm_to_host_and_ip():
     global hostname
     global ip_address
-    print(prox_pass)
 
     try:
         prox_api = ProxmoxAPI(
@@ -148,7 +151,7 @@ def bind_mm_to_host_and_ip():
         # Get ip from hostname
         try:
             # Try qemu first, if it fails try lxc
-            vm = prox_api.nodes("oasis").qemu(mm_vmid)
+            vm = prox_api.nodes(node).qemu(mm_vmid)
             network_interfaces = vm.agent('network-get-interfaces').get()
             if network_interfaces is not None:
                 for statistics in network_interfaces["result"]:
@@ -158,37 +161,46 @@ def bind_mm_to_host_and_ip():
                             print("HOOK: IP found (PVEAPI): " + str(ip_address))
                             break
         except:
-            ##FIXME: 500 Internal Server Error: Configuration file 'nodes/oasis/lxc/995.conf' does not exist
-            vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
-            if vm is not None:
-                for config in vm:
-                    if config == "net0":
-                        net_config = vm[config]
-                        for item in net_config.split(','):
-                            if item.startswith('ip='):
-                                ip_address = item[3:] # Remove ip=
-                                ip_address = ip_address.split('/')[0] # Remove subnet
-                                print("HOOK: IP found (PVEAPI): " + str(ip_address))
-                                break
-            
-            else:
-                logging.critical("No ip found for vmid: " + str(mm_vmid))
-                sys.exit()
+            try:
+                ##FIXME: 500 Internal Server Error: Configuration file 'nodes/oasis/lxc/995.conf' does not exist
+                vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
+                if vm is not None:
+                    for config in vm:
+                        if config == "net0":
+                            net_config = vm[config]
+                            for item in net_config.split(','):
+                                if item.startswith('ip='):
+                                    ip_address = item[3:] # Remove ip=
+                                    ##FIXME: Check if ip is "dhcp"
+                                    ip_address = ip_address.split('/')[0] # Remove subnet
+                                    print("HOOK: IP found (PVEAPI): " + str(ip_address))
+                                    break
+                
+                else:
+                    logging.critical("No ip found for vmid: " + str(mm_vmid))
+                    sys.exit()
+            except:
+                ip_address = None
+                logging.critical("Something went wrong getting ip of: " + str(mm_vmid))
 
         # Get hostname from vmid
         try:
-            vm = prox_api.nodes("oasis").qemu(mm_vmid).config.get()
+            vm = prox_api.nodes(node).qemu(mm_vmid).config.get()
         except Exception:
-            vm = prox_api.nodes("oasis").lxc(mm_vmid).config.get()
-        if vm is not None:
             try:
-                hostname = vm["name"]
-            except KeyError:
-                hostname = vm["hostname"]
-            print("HOOK: Hostname found (PVEAPI): " + str(hostname))
-        else:
-            logging.error("No hostname found for vmid: " + str(mm_vmid))
-            sys.exit()
+                vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
+                if vm is not None:
+                    try:
+                        hostname = vm["name"]
+                    except KeyError:
+                        hostname = vm["hostname"]
+                    print("HOOK: Hostname found (PVEAPI): " + str(hostname))
+                else:
+                    logging.error("No hostname found for vmid: " + str(mm_vmid))
+                    sys.exit()
+            except:
+                logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
+                sys.exit()
 
 
     except:

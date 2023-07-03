@@ -171,7 +171,7 @@ def bind_mm_to_host_and_ip():
                             for item in net_config.split(','):
                                 if item.startswith('ip='):
                                     ip_address = item[3:] # Remove ip=
-                                    ##FIXME: Check if ip is "dhcp"
+                                    ##FIXME: Check if ip is "dhcp" or not set
                                     ip_address = ip_address.split('/')[0] # Remove subnet
                                     print("HOOK: IP found (PVEAPI): " + str(ip_address))
                                     break
@@ -186,26 +186,25 @@ def bind_mm_to_host_and_ip():
         # Get hostname from vmid
         try:
             vm = prox_api.nodes(node).qemu(mm_vmid).config.get()
-        except Exception:
-            try:
-                vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
-                if vm is not None:
-                    try:
-                        hostname = vm["name"]
-                    except KeyError:
-                        hostname = vm["hostname"]
-                    print("HOOK: Hostname found (PVEAPI): " + str(hostname))
-                else:
-                    logging.error("No hostname found for vmid: " + str(mm_vmid))
-                    sys.exit()
-            except:
-                logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
+        except:
+            vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
+        try:
+            if vm is not None:
+                try:
+                    hostname = vm["name"]
+                except KeyError:
+                    hostname = vm["hostname"]
+                print("HOOK: Hostname found (PVEAPI): " + str(hostname))
+            else:
+                logging.error("No hostname found for vmid: " + str(mm_vmid))
                 sys.exit()
-
+        except:
+            logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
+            sys.exit()
 
     except:
-        raise ## uncomment to see full error
-        logging.error("There was an error while using proxmox api.")
+        # raise ## uncomment to see full error
+        logging.critical("There was an error while using proxmox api.")
         sys.exit()
 
     ##TODO: Check if ip binding works correctly for quemu and lxcs

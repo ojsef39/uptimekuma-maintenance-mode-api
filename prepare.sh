@@ -33,24 +33,32 @@ done
 
 # Remove existing directory (if it exists)
 if [ -d "$GIT_DIR" ]; then
+    echo "Status: Removing existing directory..."
     rm -rf "$GIT_DIR"
 fi
 
 # Clone the repository
+echo "Status: Cloning repository: $REPO_URL..."
 git clone "$REPO_URL" "$GIT_DIR"
 
 # Move the python script to target directory
+echo "Status: Moving python script to target directory: $TARGET_DIR..."
 mv "$GIT_DIR/uptime-api.py" "$TARGET_DIR"
 
 # If the --proxmox argument was provided, set up the Proxmox script
 if [ "$PROXMOX" = true ]; then
     # Create snippets directory if it does not exist
+    echo "Status: Creating snippets directory $SNIPPETS_DIR..."
     mkdir -p "$SNIPPETS_DIR"
 
     # Move the Proxmox script to snippets directory and make it executable
+    echo "Status: Moving Proxmox script to snippets directory: $SNIPPETS_DIR..."
     mv "$GIT_DIR/use-with-proxmox/script-runner-uptime-api.sh" "$SNIPPETS_DIR"
+    echo "Status: Making Proxmox script executable..."
     chmod +x "$SNIPPETS_DIR/script-runner-uptime-api.sh"
 fi
 
 # Cleaning up
+echo "Status: Cleaning up..."
 rm -rf "$GIT_DIR"
+echo "Status: Done!"

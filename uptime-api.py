@@ -203,10 +203,7 @@ def bind_mm_to_host_and_ip():
     except:
         # raise ## uncomment to see full error
         logging.critical("There was an error while using proxmox api.")
-        sys.exit()
-
-    ##TODO: Check if ip binding works correctly for quemu and lxcs
-                      
+        sys.exit()                      
 
 def get_mm():
     mm_array = api.get_maintenances()
@@ -286,7 +283,7 @@ def change_mm_title(mm_id, mm_title):
 
 
 def is_host_up():
-    ##TODO: When ip is "dhcp", do nothing
+    ## When ip is "dhcp", do nothing
     if ip_address != "dhcp" or ip_address is not None:
         logging.debug("Checking if host is up in 2 seconds...")
         time.sleep(2)

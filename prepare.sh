@@ -52,7 +52,7 @@ if [ "$PROXMOX" = true ]; then
     mkdir -p "$SNIPPETS_DIR"
 
     # Move the Proxmox script to snippets directory and make it executable
-    echo "Status: Moving Proxmox script to snippets directory..."
+    echo "Status: Moving Proxmox script to snippets directory: $SNIPPETS_DIR..."
     mv "$GIT_DIR/use-with-proxmox/script-runner-uptime-api.sh" "$SNIPPETS_DIR"
     echo "Status: Making Proxmox script executable..."
     chmod +x "$SNIPPETS_DIR/script-runner-uptime-api.sh"

@@ -45,6 +45,7 @@ git clone "$REPO_URL" "$GIT_DIR"
 # Move the python script to target directory and make it executable
 echo "Status: Moving python script to target directory: $TARGET_DIR..."
 # remove file before moving new one
+echo "Status: Removing file if it exists..."
 rm -f "$TARGET_DIR/uptime-api.py"
 mv "$GIT_DIR/uptime-api.py" "$TARGET_DIR"
 echo "Status: Making python script executable..."
@@ -59,6 +60,7 @@ if [ "$PROXMOX" = true ]; then
     # Move the Proxmox script to snippets directory and make it executable
     echo "Status: Moving Proxmox script to snippets directory: $SNIPPETS_DIR..."
     # remove file before moving new one
+    echo "Status: Removing file if it exists..."
     rm -f "$SNIPPETS_DIR/script-runner-uptime-api.sh"
     mv "$GIT_DIR/use-with-proxmox/script-runner-uptime-api.sh" "$SNIPPETS_DIR"
     echo "Status: Making Proxmox script executable..."

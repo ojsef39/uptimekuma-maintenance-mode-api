@@ -299,11 +299,12 @@ def change_mm_title(mm_id, mm_title):
 
 def is_host_up():
     ## When ip is "dhcp", do nothing
-    if ip_address != "dhcp" or ip_address is not None:
+    if ip_address != "dhcp" and ip_address is not None:
+
         logging.debug("Checking if host is up in 2 seconds...")
         time.sleep(2)
         # ping host 10 times until back online
-        check_count = 0
+        check_count = 1
         while True:
             response = os.system("ping -c 1 " + str(ip_address) + " > /dev/null 2>&1")
             if check_count <= 10:
@@ -311,14 +312,14 @@ def is_host_up():
                     print("HOOK: Host is up again, ending maintenance mode...")
                     break
                 else:
-                    logging.debug("Host is still down, waiting 1 seconds...")
-                    time.sleep(1)
+                    logging.debug("( " + str(check_count) + ") Host is still down, waiting two seconds and then trying again...")
+                    time.sleep(2)
                     check_count += 1
             else:
                 logging.error("Host is still down after 10 checks, something went wrong...")
                 break
     else:
-        logging.debug("IP is dhcp, not checking if host is up again...")
+        logging.debug("IP is dhcp or not set, not checking if host is up again...")
 
 
 def main():

@@ -44,11 +44,11 @@ fi
 
 # Clone the repository
 echo "Status: Cloning repository: $REPO_URL..."
+git clone "$REPO_URL" "$GIT_DIR"
 # git reset --hard "main" ##TODO: Uncomment this line
 if [ "$DEV" = true ]; then
     
     ## NEXT LINES FOR TESTING!
-    git clone "$REPO_URL" "$GIT_DIR"
     echo "Status: Switching to branch"
     git switch "dev-update-prepare"
     echo "Status: Pulling latest changes..."

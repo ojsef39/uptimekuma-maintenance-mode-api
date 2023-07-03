@@ -29,7 +29,6 @@ do
         PROXMOX=true
         shift # remove --proxmox from processing
         ;;
-    case $arg in
         --dev)
         DEV=true
         shift # remove --dev from processing

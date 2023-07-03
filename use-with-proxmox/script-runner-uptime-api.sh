@@ -14,6 +14,7 @@
 #!/bin/bash
 
 #LOGIN DATA
+##FIXME: Add url to paremeters below
 url="uptimekuma url" # Defaults to "https://status.muc.azubi.server.lan"
 username="username"
 password="password"

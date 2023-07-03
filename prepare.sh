@@ -41,9 +41,11 @@ fi
 echo "Status: Cloning repository: $REPO_URL..."
 git clone "$REPO_URL" "$GIT_DIR"
 
-# Move the python script to target directory
+# Move the python script to target directory and make it executable
 echo "Status: Moving python script to target directory: $TARGET_DIR..."
 mv "$GIT_DIR/uptime-api.py" "$TARGET_DIR"
+echo "Status: Making python script executable..."
+chmod +x "$TARGET_DIR/uptime-api.py"
 
 # If the --proxmox argument was provided, set up the Proxmox script
 if [ "$PROXMOX" = true ]; then

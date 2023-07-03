@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#!/bin/bash
+#!/bin/sh
 
 #LOGIN DATA
 url="uptimekuma url" # Defaults to "https://status.muc.azubi.server.lan"
@@ -57,16 +57,16 @@ status=$(echo "$status" | tr '[:upper:]' '[:lower:]')
 hostname=${HOSTNAME}
 
 # check if phase "job*" is active
-if [ "$phase" == 'pre-restart' ||
-      "$phase" == 'post-restart' ||
-      "$phase" == 'pre-start' ||
-      "$phase" == 'post-start' ||
-      "$phase" == 'pre-stop' ||
-      "$phase" == 'job-init' ||
-      "$phase" == 'job-start' ||
-      "$phase" == 'stop' ||
-      "$phase" == 'job-end' ||
-      "$phase" == 'job-abort' ]
+if [ "$phase" = 'pre-restart' -o
+      "$phase" = 'post-restart' -o
+      "$phase" = 'pre-start' -o
+      "$phase" = 'post-start' -o
+      "$phase" = 'pre-stop' -o
+      "$phase" = 'job-init' -o
+      "$phase" = 'job-start' -o
+      "$phase" = 'stop' -o
+      "$phase" = 'job-end' -o
+      "$phase" = 'job-abort' ]
 then
     echo "HOOK: Nothing to do here $phase"
 elif [ "$phase" == 'backup-start' ]
@@ -75,13 +75,13 @@ then
     echo "HOOK: Running $phase uptime.py (START)"
     sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='START' --status="$status" --stop_status="$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
     echo "HOOK: Running uptime-api.py script at $phase failed" && exit 1
-elif [ "$phase" == 'backup-end' || "$phase" == 'backup-abort' ]
+elif [ "$phase" = 'backup-end' -o "$phase" = 'backup-abort' ] #TODO: Differentiate between backup-end and backup-abort
 then
     # if backup is finished -> stop maintenance mode
     echo "HOOK: Running $phase uptime.py (END)"
     sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='END' --status="$status" --stop_status="$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
     echo "HOOK: Running uptime-api.py script at $phase failed" && exit 1
-elif [ "$phase" == 'log-end' ]
+elif [ "$phase" = 'log-end' ]
 then
     # if backup is finished wait until host is back online
     echo "HOOK: Running $phase uptime.py (LOG/WAIT)"

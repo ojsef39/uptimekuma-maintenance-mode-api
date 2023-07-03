@@ -33,7 +33,7 @@ echo "HOOK: $@"
 
 # Not relevant for script
 if [ $# -lt 3 ]; then
-    echo "Error: This script requires at least three arguments."
+    echo "HOOK: Nothing to do here $phase"
     exit 0
 fi
 
@@ -44,7 +44,7 @@ shift
 vmid=$1
 shift
 
-if [ -z "$phase" -o -z "$status" -o -z "$vmid" ]
+if [ -z "$phase" ] || [ -z "$status" ] || [ -z "$vmid" ]
 then
     echo "HOOK: Nothing to do here $phase"
     exit 0
@@ -53,20 +53,20 @@ fi
 phase=$(echo "$phase" | tr '[:upper:]' '[:lower:]')
 status=$(echo "$status" | tr '[:upper:]' '[:lower:]')
 
-# get vm hostname
-hostname=${HOSTNAME}
+# get vm hostname ##TODO: Use this hostname instead of pulling from proxmoxapi
+#hostname=${HOSTNAME}
 
 # check if phase "job*" is active
-if [ "$phase" = 'pre-restart' -o
-      "$phase" = 'post-restart' -o
-      "$phase" = 'pre-start' -o
-      "$phase" = 'post-start' -o
-      "$phase" = 'pre-stop' -o
-      "$phase" = 'job-init' -o
-      "$phase" = 'job-start' -o
-      "$phase" = 'stop' -o
-      "$phase" = 'job-end' -o
-      "$phase" = 'job-abort' ]
+if [ "$phase" = 'pre-restart' ] ||
+[ "$phase" = 'post-restart' ] ||
+[ "$phase" = 'pre-start' ] ||
+[ "$phase" = 'post-start' ] ||
+[ "$phase" = 'pre-stop' ] ||
+[ "$phase" = 'job-init' ] ||
+[ "$phase" = 'job-start' ] ||
+[ "$phase" = 'stop' ] ||
+[ "$phase" = 'job-end' ] ||
+[ "$phase" = 'job-abort' ]
 then
     echo "HOOK: Nothing to do here $phase"
 elif [ "$phase" == 'backup-start' ]

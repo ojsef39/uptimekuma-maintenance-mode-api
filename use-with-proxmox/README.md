@@ -1,11 +1,10 @@
 # Usage of script-runner-uptime-api.pl: #
 
-1. `mkdir /var/lib/vz/snippets`
-2. `cp /path/to/script-runner-uptime-api.pl /var/lib/vz/snippets/`
-3. `chmod +x /var/lib/vz/snippets/script-runner-uptime-api.pl`
-4. customize it to your needs -> `$username`, `$password`, `$status` 
+1. `sudo ./prepare.sh --proxmox` (pulls and moves files to the right place)
+2. `chmod +x /var/lib/vz/snippets/script-runner-uptime-api.sh`
+3. customize values in script to your needs -> `$username`, `$password`, `$status`, `$stop_status`, `$prox_host`, `$prox_user`, `$prox_pass`
 
-Add `script /var/lib/vz/snippets/script-runner-uptime-api.pl` to `/etc/pve/jobs.cfg` like this:
+Add `script /var/lib/vz/snippets/script-runner-uptime-api.sh` to `/etc/pve/jobs.cfg` like this:
 ````
 vzdump: backup-########-####
 schedule sun 01:00
@@ -15,7 +14,7 @@ mailnotification always
 mode stop
 node oasis
 notes-template {{guestname}}
-script /var/lib/vz/snippets/script-runner-uptime-api.pl
+script /var/lib/vz/snippets/script-runner-uptime-api.sh
 storage backups
 vmid 995`
 ````
@@ -25,5 +24,5 @@ You can test if the hook works with (you need a maintenance with #995 in the des
 
 ### Please note: ###
 
-The hook runs following command: `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' --status=$status -u=$username' -p=$password'"`, so 
+The hook runs following command: `python3 /root/uptime-api.py --vmid="$vmid" --phase='END' --status="$status" --"$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --prox_node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass"'"`, so 
 please ensure the `uptime-api.py` can be found in `/root/uptime-api.py`

@@ -1,9 +1,11 @@
 import argparse
 import logging
+import os
 import re
 import sys
-import os
+import time
 from uptime_kuma_api import UptimeKumaApi
+from proxmoxer import ProxmoxAPI
 
 #Maintenance mode will be abbreviated to MM
 # e.g. search_maintenance_mode will be search_mm
@@ -32,6 +34,9 @@ def init():
     parser.add_argument('--status',
                         default="Backing up VM",
                         help="Set backup status.")
+    parser.add_argument('--stop_status',
+                        default="Finished/Aborted Backing up VM",
+                        help="Set backup status on stop/end/abort.")
     parser.add_argument('-u',
                         '--username',
                         default=None,
@@ -42,6 +47,14 @@ def init():
                         help="Set uptime password (In the future token login will be possible)")
     parser.add_argument('--url',
                         default="https://status.muc.azubi.server.lan")
+    parser.add_argument('--prox_host',
+                        default="oasis.muc.azubi.server.lan:443")
+    parser.add_argument('--node',
+                        default="oasis"),
+    parser.add_argument('--prox_user',
+                        default=None)
+    parser.add_argument('--prox_pass',
+                        default=None)
 
 
     args = parser.parse_args().__dict__
@@ -52,12 +65,22 @@ def init():
     mm_phase = args["phase"]
     global mm_status
     mm_status = args["status"]
+    global mm_stop_status
+    mm_stop_status = args["stop_status"]
     global uptime_user
     uptime_user = args["username"]
     global uptime_pass
     uptime_pass = args["password"]
     global uptime_url
     uptime_url = args["url"]
+    global prox_host
+    prox_host = args["prox_host"]
+    global node
+    node = args["node"]
+    global prox_user
+    prox_user = args["prox_user"]
+    global prox_pass
+    prox_pass = args["prox_pass"]
 
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
@@ -89,20 +112,22 @@ def init():
     # Display set log_level
     #logging.info("START OF LOG")
     logging.info("LogLevel is set to: " + log_level)
+    logging.debug("VMID is set to: " + str(mm_vmid))
 
     # Check if Host is set
     if mm_vmid is None:
         logging.critical("No maintenance mode host set… exiting...")
         sys.exit()
 
-    # Login to Uptime Kuma
+    # Disable SSL verification if log_level is DEBUG
     if log_level == "DEBUG":
         ssl_verify = False
     else:
         ssl_verify = True
-
+    
+    # Login to Uptime Kuma
     try:
-        api = UptimeKumaApi(uptime_url, ssl_verify=ssl_verify)
+        api = UptimeKumaApi(url=uptime_url, ssl_verify=ssl_verify)
         api.login(uptime_user, uptime_pass)
         # Login by token is not working for some reason?
         #api.login_by_token(os.getenv("UPTIME_TOKEN"))
@@ -110,8 +135,75 @@ def init():
     except:
         logging.error("There was an error while trying to login."
                       " For more help check readME ")
-        raise
+        raise  # uncomment to see full error
         sys.exit()
+
+# Use proxmox api to bin vmid to hostnames and ips
+def bind_mm_to_host_and_ip():
+    global hostname
+    global ip_address
+
+    try:
+        prox_api = ProxmoxAPI(
+            prox_host, user=prox_user, password=prox_pass, verify_ssl=False
+        )
+
+        # Get ip from hostname
+        try:
+            # Try qemu first, if it fails try lxc
+            vm = prox_api.nodes(node).qemu(mm_vmid)
+            network_interfaces = vm.agent('network-get-interfaces').get()
+            if network_interfaces is not None:
+                for statistics in network_interfaces["result"]:
+                    for ip_configs in statistics["ip-addresses"]:
+                        if ip_configs["ip-address-type"] == "ipv4" and ip_configs["ip-address"] != "127.0.0.1":
+                            ip_address = (ip_configs["ip-address"])
+                            print("HOOK: IP found (PVEAPI): " + str(ip_address))
+                            break
+        except:
+            try:
+                vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
+                if vm is not None:
+                    for config in vm:
+                        if config == "net0":
+                            net_config = vm[config]
+                            for item in net_config.split(','):
+                                if item.startswith('ip='):
+                                    ip_address = item[3:] # Remove ip=
+                                    ip_address = ip_address.split('/')[0] # Remove subnet
+                                    print("HOOK: IP found (PVEAPI): " + str(ip_address))
+                                    break
+                
+                else:
+                    logging.critical("No ip found for vmid: " + str(mm_vmid))
+                    sys.exit()
+            except:
+                ip_address = None
+                logging.critical("Something went wrong getting ip of: " + str(mm_vmid))
+
+        # Get hostname from vmid
+        try:
+            vm = prox_api.nodes(node).qemu(mm_vmid).config.get()
+        except:
+            vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
+        try:
+            if vm is not None:
+                try:
+                    hostname = vm["name"]
+                except KeyError:
+                    hostname = vm["hostname"]
+                print("HOOK: Hostname found (PVEAPI): " + str(hostname))
+            else:
+                logging.error("No hostname found for vmid: " + str(mm_vmid))
+                sys.exit()
+        except:
+            logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
+            sys.exit()
+
+    except:
+        # raise ## uncomment to see full error
+        logging.critical("There was an error while using proxmox api.")
+        sys.exit()                      
 
 def get_mm():
     mm_array = api.get_maintenances()
@@ -137,32 +229,88 @@ def change_mm(last_match, mm_id, mm_title):
             print("HOOK: Resumed maintenance mode ID: " + str(mm_id)
                   + " Name: " + mm_title)
         elif mm_phase == "END":
-            api.pause_maintenance(mm_id)
+            api.resume_maintenance(mm_id)
             change_mm_title(mm_id, mm_title)
-            print("HOOK: Pausing maintenance mode ID: " + str(mm_id)
+            print("HOOK: Resumed (end) maintenance mode ID: " + str(mm_id)
                   + " Name: " + mm_title)
+        elif mm_phase == "LOG-WAIT":            
+            api.resume_maintenance(mm_id)
+            change_mm_title(mm_id, mm_title)
+            api.pause_maintenance(mm_id)
+            print("HOOK: Paused (log-wait) maintenance mode ID: " + str(mm_id))
+
+def clear_mm_title(mm_id, mm_title):
+    
+    status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+    if status_start_index != -1:
+        mm_title = mm_title[:status_start_index]
+    changed_title = mm_title
+    api.edit_maintenance(mm_id,
+                            title=changed_title)
+    logging.debug("Changed MM Title to: " + changed_title)
+
 
 def change_mm_title(mm_id, mm_title):
+
     if mm_phase == "START":
         status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
         if status_start_index != -1:
             mm_title = mm_title[:status_start_index]
-        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(mm_vmid) + ")"
+        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(hostname) + ")"
         api.edit_maintenance(mm_id,
                              title=changed_title)
         logging.debug("Changed MM Title to: " + changed_title)
     elif mm_phase == "END":
         status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
         if status_start_index != -1:
-            changed_title = mm_title[:status_start_index]
-            api.edit_maintenance(mm_id,
-                                 title=changed_title)
-            logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+            mm_title = mm_title[:status_start_index]
+        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
+        api.edit_maintenance(mm_id,
+                             title=changed_title)
+        logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+    elif mm_phase == "LOG-WAIT":
+        ## Show that its waiting for the host to be up again
+        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+        if status_start_index != -1:
+            mm_title = mm_title[:status_start_index]
+        changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
+        api.edit_maintenance(mm_id,
+                             title=changed_title)
+        logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+        logging.debug("Waiting for host to be up again...")
+        is_host_up()
+        ## Host is up again, end maintenance mode
+        clear_mm_title(mm_id, mm_title)
+
+
+def is_host_up():
+    ## When ip is "dhcp", do nothing
+    if ip_address != "dhcp" or ip_address is not None:
+        logging.debug("Checking if host is up in 2 seconds...")
+        time.sleep(2)
+        # ping host 10 times until back online
+        check_count = 0
+        while True:
+            response = os.system("ping -c 1 " + str(ip_address) + " > /dev/null 2>&1")
+            if check_count <= 10:
+                if response == 0:
+                    print("HOOK: Host is up again, ending maintenance mode...")
+                    break
+                else:
+                    logging.debug("Host is still down, waiting 1 seconds...")
+                    time.sleep(1)
+                    check_count += 1
+            else:
+                logging.error("Host is still down after 10 checks, something went wrong...")
+                break
+    else:
+        logging.debug("IP is dhcp, not checking if host is up again...")
 
 
 def main():
     init()
-    get_mm()  # test function
+    bind_mm_to_host_and_ip()
+    get_mm()
     api.disconnect() # disconnect from api after use
     logging.debug("Script finished, api disconnected, END OF LOG!")
 

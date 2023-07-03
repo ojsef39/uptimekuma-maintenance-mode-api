@@ -25,16 +25,26 @@ Update Script:
 
 `--status`: Set backup status e.g. "Backing up VM" for "Your VM Title (Status: Backing up VM `#995`"
 
+`--url`: "https://url.to.statuspage/" Defaults to: "https://status.muc.azubi.server.lan"
+
 `-u`, `--username`: "Uptime Kuma Username"
 
 `-p`, `--password`: "Uptime Kuma Password (Token login will be added in future)"
 
-`--url`: "https://url.to.statuspage/" Defaults to: "https://status.muc.azubi.server.lan"
+If using with proxmox hook:
+
+`--prox_host`: "Proxmox URL"
+
+`--node`: "Proxmox Node"
+
+`--prox_user`: "Proxmox User"
+
+`--prox_pass`: "Proxmox Password"
 
 ### Usage example: ###
 In Proxmox the hostname of the VM thats currently is being backed up is "evergreen" with the VMID 995.
 
-So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 /root/uptime-api.py --vmid=$vmid --phase='START/END' --status=$status -u=$username' -p=$password'` then
+So the Proxmox hook (see ReadME in `use-with-proxmox` folder) calls the script `python3 /root/uptime-api.py --vmid="$vmid" --phase='END' --status="$status" --"$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --prox_node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass"'` then
 the script tries to match a maintenance mode to the given tag (`#995`). 
 
 Every MM with the specified tag in the description will be activated.

@@ -19,6 +19,7 @@ TARGET_DIR="/root"
 GIT_DIR="/tmp/uptimekuma-maintenance-mode-api"
 SNIPPETS_DIR="/var/lib/vz/snippets"
 PROXMOX=false
+DEV=false
 
 # Parse command-line arguments
 for arg in "$@"
@@ -27,6 +28,11 @@ do
         --proxmox)
         PROXMOX=true
         shift # remove --proxmox from processing
+        ;;
+    case $arg in
+        --dev)
+        DEV=true
+        shift # remove --dev from processing
         ;;
     esac
 done
@@ -40,13 +46,16 @@ fi
 # Clone the repository
 echo "Status: Cloning repository: $REPO_URL..."
 # git reset --hard "main" ##TODO: Uncomment this line
-## NEXT LINES FOR TESTING!
-git clone "$REPO_URL" "$GIT_DIR"
-echo "Status: Switching to branch"
-git switch "dev-update-prepare"
-echo "Status: Pulling latest changes..."
-git reset --hard "dev-update-prepare"
-git pull
+if [ "$DEV" = true ]; then
+    
+    ## NEXT LINES FOR TESTING!
+    git clone "$REPO_URL" "$GIT_DIR"
+    echo "Status: Switching to branch"
+    git switch "dev-update-prepare"
+    echo "Status: Pulling latest changes..."
+    git reset --hard "dev-update-prepare"
+    git pull
+fi
 
 # Move the python script to target directory and make it executable
 echo "Status: Moving python script to target directory: $TARGET_DIR..."

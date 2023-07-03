@@ -75,7 +75,7 @@ then
     echo "HOOK: Running $phase uptime.py (START)"
     sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='START' --status="$status" --stop_status="$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
     echo "HOOK: Running uptime-api.py script at $phase failed" && exit 1
-elif [ "$phase" = 'backup-end' -o "$phase" = 'backup-abort' ] #TODO: Differentiate between backup-end and backup-abort
+elif [ "$phase" = 'backup-end' || "$phase" = 'backup-abort' ] #TODO: Differentiate between backup-end and backup-abort
 then
     # if backup is finished -> stop maintenance mode
     echo "HOOK: Running $phase uptime.py (END)"

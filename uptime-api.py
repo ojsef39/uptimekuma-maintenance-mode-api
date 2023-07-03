@@ -160,7 +160,6 @@ def bind_mm_to_host_and_ip():
                             break
         except:
             try:
-                ##FIXME: 500 Internal Server Error: Configuration file 'nodes/oasis/lxc/995.conf' does not exist
                 vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
                 if vm is not None:
                     for config in vm:

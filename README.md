@@ -1,6 +1,5 @@
 ## STILL WIP; BUT IT SHOULD WORK ##
 
-***Use branch `master`! Default branch is `dev`***
 ### Python script to control maintenance modes in Uptime-Kuma ###
 For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
 

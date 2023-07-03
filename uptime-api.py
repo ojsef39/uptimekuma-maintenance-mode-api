@@ -194,6 +194,7 @@ def bind_mm_to_host_and_ip():
             except:
                 ip_address = None
                 logging.critical("Something went wrong getting ip of: " + str(mm_vmid))
+                raise
 
         # Get hostname from vmid
         try:
@@ -213,10 +214,11 @@ def bind_mm_to_host_and_ip():
         except:
             logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
             sys.exit()
+            raise
 
     except:
-        # raise ## uncomment to see full error
         logging.critical("There was an error while using proxmox api.")
+        raise ## uncomment to see full error
         sys.exit()                      
 
 def get_mm():

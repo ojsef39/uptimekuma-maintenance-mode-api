@@ -17,7 +17,7 @@
 url="uptimekuma url" # Defaults to "https://status.muc.azubi.server.lan"
 username="username"
 password="password"
-prox_host="proxmox-hostname" ## Defaults to oasis.muc.azubi.server.lan:443
+prox_host="proxmox-hostname" ## Defaults to localhost or oasis.muc.azubi.server.lan:443
 prox_node="node" ## Defaults to "oasis"
 prox_user="proxmox-username"
 prox_pass="proxmox-password"

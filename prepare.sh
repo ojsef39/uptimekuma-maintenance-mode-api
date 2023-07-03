@@ -38,17 +38,17 @@ if [ -d "$GIT_DIR" ]; then
 fi
 
 # Clone the repository
-echo "Status: Cloning repository..."
+echo "Status: Cloning repository: $REPO_URL..."
 git clone "$REPO_URL" "$GIT_DIR"
 
 # Move the python script to target directory
-echo "Status: Moving python script to target directory..."
+echo "Status: Moving python script to target directory: $TARGET_DIR..."
 mv "$GIT_DIR/uptime-api.py" "$TARGET_DIR"
 
 # If the --proxmox argument was provided, set up the Proxmox script
 if [ "$PROXMOX" = true ]; then
     # Create snippets directory if it does not exist
-    echo "Status: Creating snippets directory..."
+    echo "Status: Creating snippets directory $SNIPPETS_DIR..."
     mkdir -p "$SNIPPETS_DIR"
 
     # Move the Proxmox script to snippets directory and make it executable

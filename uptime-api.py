@@ -1,7 +1,9 @@
 import argparse
 import logging
+import os
 import re
 import sys
+import time
 from uptime_kuma_api import UptimeKumaApi
 from proxmoxer import ProxmoxAPI
 
@@ -168,7 +170,6 @@ def bind_mm_to_host_and_ip():
                             for item in net_config.split(','):
                                 if item.startswith('ip='):
                                     ip_address = item[3:] # Remove ip=
-                                    ##FIXME: Check if ip is "dhcp" or not set
                                     ip_address = ip_address.split('/')[0] # Remove subnet
                                     print("HOOK: IP found (PVEAPI): " + str(ip_address))
                                     break
@@ -278,7 +279,6 @@ def change_mm_title(mm_id, mm_title):
         api.edit_maintenance(mm_id,
                              title=changed_title)
         logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
-        ##TODO: Add function to check if host is up again
         logging.debug("Waiting for host to be up again...")
         is_host_up()
         ## Host is up again, end maintenance mode
@@ -286,7 +286,27 @@ def change_mm_title(mm_id, mm_title):
 
 
 def is_host_up():
-    logging.debug("Checking if host is up again...")
+    ##TODO: When ip is "dhcp", do nothing
+    if ip_address != "dhcp" or ip_address is not None:
+        logging.debug("Checking if host is up in 2 seconds...")
+        time.sleep(2)
+        # ping host 10 times until back online
+        check_count = 0
+        while True:
+            response = os.system("ping -c 1 " + str(ip_address) + " > /dev/null 2>&1")
+            if check_count <= 10:
+                if response == 0:
+                    print("HOOK: Host is up again, ending maintenance mode...")
+                    break
+                else:
+                    logging.debug("Host is still down, waiting 1 seconds...")
+                    time.sleep(1)
+                    check_count += 1
+            else:
+                logging.error("Host is still down after 10 checks, something went wrong...")
+                break
+    else:
+        logging.debug("IP is dhcp, not checking if host is up again...")
 
 
 def main():

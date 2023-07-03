@@ -39,6 +39,7 @@ fi
 
 # Clone the repository
 echo "Status: Cloning repository: $REPO_URL..."
+#git reset --hard "main" ##TODO: Uncomment this line
 git clone "$REPO_URL" "$GIT_DIR"
 
 # Move the python script to target directory and make it executable

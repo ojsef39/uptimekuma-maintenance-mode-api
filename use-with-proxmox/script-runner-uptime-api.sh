@@ -14,7 +14,6 @@
 #!/bin/bash
 
 #LOGIN DATA
-##FIXME: Add url to paremeters below
 url="uptimekuma url" # Defaults to "https://status.muc.azubi.server.lan"
 username="username"
 password="password"
@@ -65,19 +64,19 @@ elif [[ "$phase" == 'backup-start' ]]
 then
     # if backup is finished -> start maintenance mode
     echo "HOOK: Running $phase uptime.py (START)"
-    sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='START' --status="$status" --"$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --prox_node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
+    sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='START' --status="$status" --stop_status="$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
     echo "HOOK: Running uptime-api.py script at $phase failed" && exit 1
 elif [[ "$phase" == 'backup-end' || "$phase" == 'backup-abort' ]]
 then
     # if backup is finished -> stop maintenance mode
     echo "HOOK: Running $phase uptime.py (END)"
-    sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='END' --status="$status" --"$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --prox_node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
+    sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='END' --status="$status" --stop_status="$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
     echo "HOOK: Running uptime-api.py script at $phase failed" && exit 1
 elif [[ "$phase" == 'log-end' ]]
 then
     # if backup is finished wait until host is back online
     echo "HOOK: Running $phase uptime.py (LOG/WAIT)"
-    sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='LOG-WAIT' --status="$status" --"$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --prox_node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
+    sudo -u root python3 /root/uptime-api.py --vmid="$vmid" --phase='LOG-WAIT' --status="$status" --stop_status="$stop_status" --url="$url"  -u="$username" -p="$password" --prox_host="$prox_host" --node="$prox_node" --prox_user="$prox_user" --prox_pass="$prox_pass" || \
     echo "HOOK: Running uptime-api.py script at $phase failed" && exit 1
 else
     echo "HOOK: got unknown phase '$phase'"

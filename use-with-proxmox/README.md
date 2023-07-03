@@ -4,6 +4,7 @@
 2. `chmod +x /var/lib/vz/snippets/script-runner-uptime-api.sh`
 3. customize values in script to your needs -> `$username`, `$password`, `$status`, `$stop_status`, `$prox_host`, `$prox_user`, `$prox_pass`
 
+##TODO: Add qm set thing back when it should work for single backups too
 Add `script /var/lib/vz/snippets/script-runner-uptime-api.sh` to `/etc/pve/jobs.cfg` like this:
 ````
 vzdump: backup-########-####

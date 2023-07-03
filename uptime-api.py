@@ -143,8 +143,6 @@ def bind_mm_to_host_and_ip():
 
     try:
         prox_api = ProxmoxAPI(
-            ##TODO: Add pw, user, host to args -> and let user change it via variables like $status
-            #FIXME: Authentication Error: 
             prox_host, user=prox_user, password=prox_pass, verify_ssl=False
         )
 

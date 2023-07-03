@@ -149,7 +149,7 @@ def init():
     except:
         logging.error("There was an error while trying to login."
                       " For more help check readME ")
-        raise  # uncomment to see full error
+        # raise  # uncomment to see full error
         sys.exit()
 
 # Use proxmox api to bin vmid to hostnames and ips

@@ -319,7 +319,9 @@ def change_mm_log_wait(mm_id, mm_title):
 
 def is_host_up():
     ## When ip is "dhcp", do nothing
-    if ip_address != "dhcp" and ip_address is not None:
+    if ip_address is None:
+        logging.debug("IP is not set, host may be offline")
+    elif ip_address != "dhcp":
 
         logging.debug("Checking if host is up in 2 seconds...")
         time.sleep(2)
@@ -338,8 +340,6 @@ def is_host_up():
             else:
                 logging.error("Host is still down after 10 checks, something went wrong...")
                 return False
-    elif ip_address is None:
-        logging.debug("IP is not set, host may be offline")
     else:
         logging.debug("IP is dhcp or not set, not checking if host is up again...")
         return False

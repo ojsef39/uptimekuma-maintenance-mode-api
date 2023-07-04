@@ -96,9 +96,6 @@ def init():
     global prox_pass
     prox_pass = args["prox_pass"]
 
-    global hostname
-    global ip_address
-
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
         log_level = "INFO"
@@ -157,6 +154,8 @@ def init():
 
 # Use proxmox api to bin vmid to hostnames and ips
 def bind_mm_to_host_and_ip():
+    global hostname
+    global ip_address
 
     try:
         prox_api = ProxmoxAPI(
@@ -174,7 +173,7 @@ def bind_mm_to_host_and_ip():
                         if ip_configs["ip-address-type"] == "ipv4" and ip_configs["ip-address"] != "127.0.0.1":
                             ip_address = (ip_configs["ip-address"])
                             print("HOOK: IP found (PVEAPI): " + str(ip_address))
-                            break
+                            return ip_address
         except:
             try:
                 vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
@@ -187,7 +186,7 @@ def bind_mm_to_host_and_ip():
                                     ip_address = item[3:] # Remove ip=
                                     ip_address = ip_address.split('/')[0] # Remove subnet
                                     print("HOOK: IP found (PVEAPI): " + str(ip_address))
-                                    break
+                                    return ip_address
                 
                 else:
                     logging.warning("No ip found for vmid: " + str(mm_vmid))

@@ -8,10 +8,10 @@ Logs are created in the file `uptime-api.log` in the same directory as the scrip
 Requirements:
 - `pip install uptime_kuma_api`
 
-Update Script:
-- `sudo ./prepare.sh`
+Install/Update Script:
+- `sudo ./setup.sh`
 
-### Options: ###
+### Options for the python script (not setup.sh): ###
 
 `--log`: "DEBUG", "INFO", "WARNING", "ERROR" or "CRITICAL". Defaults to "INFO"
 

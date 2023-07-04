@@ -51,9 +51,9 @@ if [ "$DEV" = true ]; then
     ## NEXT LINES FOR TESTING!
     echo "Status: Switching to branch"
     cd "$GIT_DIR" # change to the directory that contains the Git repository
-    git switch "dev-update-prepare"
+    git switch "dev"
     echo "Status: Pulling latest changes..."
-    git reset --hard "dev-update-prepare"
+    git reset --hard "dev"
     git pull
     cd - # change back to the original directory
 fi

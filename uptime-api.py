@@ -283,9 +283,9 @@ def change_mm_start(mm_id, mm_title):
     status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
     if status_start_index != -1:
         mm_title = mm_title[:status_start_index]
-    try:
+    if hostname is not None:
         changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(hostname) + ")"
-    except:
+    else:
         changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(mm_vmid) + ")"
     api.edit_maintenance(mm_id,
                         title=changed_title)
@@ -295,9 +295,9 @@ def change_mm_end(mm_id, mm_title):
     status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
     if status_start_index != -1:
         mm_title = mm_title[:status_start_index]
-    try:
+    if hostname is not None:
         changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
-    except:
+    else:
         changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(mm_vmid) + ")"
     api.edit_maintenance(mm_id,
                             title=changed_title)
@@ -308,9 +308,9 @@ def change_mm_log_wait(mm_id, mm_title):
     status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
     if status_start_index != -1:
         mm_title = mm_title[:status_start_index]
-    try:
+    if hostname is not None:
         changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
-    except:
+    else:
         changed_title = mm_title +  " (Status: Waiting for " + str(mm_vmid) + ")"
     api.edit_maintenance(mm_id,
                             title=changed_title)

@@ -19,8 +19,8 @@ storage backups
 vmid 995`
 ````
 
-Or for only one VM (100 = vmid):
-`/usr/sbin/qm set 100 --hookscript local:snippets/script-runner-uptime-api.sh`
+Or for only one VM (995 = vmid):
+`/usr/sbin/qm set 995 --hookscript local:snippets/script-runner-uptime-api.sh`
 
 You can test if the hook works with (you need a maintenance with #995 in the description):
 

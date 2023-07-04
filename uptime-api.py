@@ -96,6 +96,11 @@ def init():
     global prox_pass
     prox_pass = args["prox_pass"]
 
+    global hostname
+    hostname = None
+    global ip_address
+    ip_address = None
+
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:
         log_level = "INFO"
@@ -154,8 +159,6 @@ def init():
 
 # Use proxmox api to bin vmid to hostnames and ips
 def bind_mm_to_host_and_ip():
-    global hostname
-    global ip_address
 
     try:
         prox_api = ProxmoxAPI(

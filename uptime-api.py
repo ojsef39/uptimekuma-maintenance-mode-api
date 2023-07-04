@@ -97,9 +97,7 @@ def init():
     prox_pass = args["prox_pass"]
 
     global hostname
-    hostname = None
     global ip_address
-    ip_address = None
 
 # Check if log_level is set
     if str(log_level) == "NOTHING" or log_level is None:

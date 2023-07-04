@@ -173,7 +173,7 @@ def bind_mm_to_host_and_ip():
                         if ip_configs["ip-address-type"] == "ipv4" and ip_configs["ip-address"] != "127.0.0.1":
                             ip_address = (ip_configs["ip-address"])
                             print("HOOK: IP found (PVEAPI): " + str(ip_address))
-                            return ip_address
+                            break
         except:
             try:
                 vm = prox_api.nodes(node).lxc(mm_vmid).config.get()
@@ -186,7 +186,7 @@ def bind_mm_to_host_and_ip():
                                     ip_address = item[3:] # Remove ip=
                                     ip_address = ip_address.split('/')[0] # Remove subnet
                                     print("HOOK: IP found (PVEAPI): " + str(ip_address))
-                                    return ip_address
+                                    break
                 
                 else:
                     logging.warning("No ip found for vmid: " + str(mm_vmid))

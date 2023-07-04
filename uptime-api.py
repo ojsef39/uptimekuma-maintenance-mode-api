@@ -101,7 +101,7 @@ def init():
         log_level = "INFO"
     # Check if log_level is valid
     elif log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-        logging.critical(
+        logging.warning(
             "LogLevel: " + str(log_level) +
             ' is not valid! Please enter NOTHING or a VALID option!'
             ' See docs for help!')
@@ -111,7 +111,7 @@ def init():
     if mm_phase is not None:
         mm_phase = mm_phase.upper()
     if mm_phase not in ["START", "END", "LOG-WAIT"]:
-        logging.critical(
+        logging.warning(
             'Phase was not set correctly!'
             ' See docs for help!')
         exit(0)
@@ -130,7 +130,7 @@ def init():
 
     # Check if Host is set
     if mm_vmid is None:
-        logging.critical("No maintenance mode host set… exiting...")
+        logging.warning("No maintenance mode host set… exiting...")
         exit(0)
 
     # Disable SSL verification if log_level is DEBUG
@@ -189,11 +189,11 @@ def bind_mm_to_host_and_ip():
                                     break
                 
                 else:
-                    logging.critical("No ip found for vmid: " + str(mm_vmid))
+                    logging.warning("No ip found for vmid: " + str(mm_vmid))
                     exit(0)
             except:
                 ip_address = None
-                logging.critical("Something went wrong getting ip of: " + str(mm_vmid))
+                logging.warning("Something went wrong getting ip of: " + str(mm_vmid))
                 raise
 
         # Get hostname from vmid
@@ -212,11 +212,11 @@ def bind_mm_to_host_and_ip():
                 logging.error("No hostname found for vmid: " + str(mm_vmid))
                 exit(0)
         except:
-            logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
+            logging.warning("Something went wrong getting hostname of: " + str(mm_vmid))
             exit(0)
 
     except:
-        logging.critical("There was an error while using proxmox api.")
+        logging.warning("There was an error while using proxmox api.")
         #raise ## uncomment to see full error
 
 def get_mm():

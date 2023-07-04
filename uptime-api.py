@@ -105,7 +105,7 @@ def init():
             "LogLevel: " + str(log_level) +
             ' is not valid! Please enter NOTHING or a VALID option!'
             ' See docs for help!')
-        sys.exit()
+        exit(0)
 
     # Check if log_level is set
     if mm_phase is not None:
@@ -114,7 +114,7 @@ def init():
         logging.critical(
             'Phase was not set correctly!'
             ' See docs for help!')
-        sys.exit()
+        exit(0)
 
     # Set logging
     loglevel_err = getattr(logging, log_level)
@@ -131,7 +131,7 @@ def init():
     # Check if Host is set
     if mm_vmid is None:
         logging.critical("No maintenance mode host set… exiting...")
-        sys.exit()
+        exit(0)
 
     # Disable SSL verification if log_level is DEBUG
     if log_level == "DEBUG":
@@ -150,7 +150,7 @@ def init():
         logging.error("There was an error while trying to login."
                       " For more help check readME ")
         # raise  # uncomment to see full error
-        sys.exit()
+        exit(0)
 
 # Use proxmox api to bin vmid to hostnames and ips
 def bind_mm_to_host_and_ip():
@@ -190,7 +190,7 @@ def bind_mm_to_host_and_ip():
                 
                 else:
                     logging.critical("No ip found for vmid: " + str(mm_vmid))
-                    sys.exit()
+                    exit(0)
             except:
                 ip_address = None
                 logging.critical("Something went wrong getting ip of: " + str(mm_vmid))
@@ -210,16 +210,14 @@ def bind_mm_to_host_and_ip():
                 print("HOOK: Hostname found (PVEAPI): " + str(hostname))
             else:
                 logging.error("No hostname found for vmid: " + str(mm_vmid))
-                sys.exit()
+                exit(0)
         except:
             logging.critical("Something went wrong getting hostname of: " + str(mm_vmid))
-            sys.exit()
-            raise
+            exit(0)
 
     except:
         logging.critical("There was an error while using proxmox api.")
-        raise ## uncomment to see full error
-        sys.exit()                      
+        #raise ## uncomment to see full error
 
 def get_mm():
     mm_array = api.get_maintenances()
@@ -240,20 +238,33 @@ def parse_mm(mm_id, mm_description, mm_title):
 def change_mm(last_match, mm_id, mm_title):
     if last_match == mm_vmid:
         if mm_phase == "START":
-            api.resume_maintenance(mm_id)
-            change_mm_title(mm_id, mm_title)
-            print("HOOK: Resumed maintenance mode ID: " + str(mm_id)
-                  + " Name: " + mm_title)
+            mm_start(mm_id, mm_title)
         elif mm_phase == "END":
-            api.resume_maintenance(mm_id)
-            change_mm_title(mm_id, mm_title)
-            print("HOOK: Resumed (end) maintenance mode ID: " + str(mm_id)
-                  + " Name: " + mm_title)
-        elif mm_phase == "LOG-WAIT":            
-            api.resume_maintenance(mm_id)
-            change_mm_title(mm_id, mm_title)
-            api.pause_maintenance(mm_id)
-            print("HOOK: Paused (log-wait) maintenance mode ID: " + str(mm_id))
+            mm_end(mm_id, mm_title)
+            
+        elif mm_phase == "LOG-WAIT":
+            mm_log_wait(mm_id, mm_title)            
+
+def mm_start(mm_id, mm_title):
+    logging.debug("Start maintenance mode for: " + str(mm_id))
+    api.resume_maintenance(mm_id)
+    change_mm_start(mm_id, mm_title)
+    print("HOOK: Resumed maintenance mode ID: " + str(mm_id)
+            + " Name: " + mm_title)
+
+def mm_end(mm_id, mm_title):
+    logging.debug("End maintenance mode for: " + str(mm_id))
+    api.resume_maintenance(mm_id)
+    change_mm_end(mm_id, mm_title)
+    print("HOOK: Resumed (end) maintenance mode ID: " + str(mm_id)
+            + " Name: " + mm_title)
+
+def mm_log_wait(mm_id, mm_title):
+    logging.debug("Log wait for: " + str(mm_id))
+    api.resume_maintenance(mm_id)
+    change_mm_log_wait(mm_id, mm_title)
+    api.pause_maintenance(mm_id)
+    print("HOOK: Paused (log-wait) maintenance mode ID: " + str(mm_id))
 
 def clear_mm_title(mm_id, mm_title):
     
@@ -265,39 +276,46 @@ def clear_mm_title(mm_id, mm_title):
                             title=changed_title)
     logging.debug("Changed MM Title to: " + changed_title)
 
-
-def change_mm_title(mm_id, mm_title):
-
-    if mm_phase == "START":
-        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
-        if status_start_index != -1:
-            mm_title = mm_title[:status_start_index]
+def change_mm_start(mm_id, mm_title):
+    status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+    if status_start_index != -1:
+        mm_title = mm_title[:status_start_index]
+    try:
         changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(hostname) + ")"
-        api.edit_maintenance(mm_id,
-                             title=changed_title)
-        logging.debug("Changed MM Title to: " + changed_title)
-    elif mm_phase == "END":
-        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
-        if status_start_index != -1:
-            mm_title = mm_title[:status_start_index]
-        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
-        api.edit_maintenance(mm_id,
-                             title=changed_title)
-        logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
-    elif mm_phase == "LOG-WAIT":
-        ## Show that its waiting for the host to be up again
-        status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
-        if status_start_index != -1:
-            mm_title = mm_title[:status_start_index]
-        changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
-        api.edit_maintenance(mm_id,
-                             title=changed_title)
-        logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
-        logging.debug("Waiting for host to be up again...")
-        is_host_up()
-        ## Host is up again, end maintenance mode
-        clear_mm_title(mm_id, mm_title)
+    except:
+        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(mm_vmid) + ")"
+    api.edit_maintenance(mm_id,
+                        title=changed_title)
+    logging.debug("Changed MM Title to: " + changed_title)
 
+def change_mm_end(mm_id, mm_title):
+    status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+    if status_start_index != -1:
+        mm_title = mm_title[:status_start_index]
+    try:
+        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
+    except:
+        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(mm_vmid) + ")"
+    api.edit_maintenance(mm_id,
+                            title=changed_title)
+    logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+
+def change_mm_log_wait(mm_id, mm_title):
+    ## Show that its waiting for the host to be up again
+    status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
+    if status_start_index != -1:
+        mm_title = mm_title[:status_start_index]
+    try:
+        changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
+    except:
+        changed_title = mm_title +  " (Status: Waiting for " + str(mm_vmid) + ")"
+    api.edit_maintenance(mm_id,
+                            title=changed_title)
+    logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
+    logging.debug("Waiting for host to be up again...")
+    is_host_up()
+    ## Host is up again, end maintenance mode
+    clear_mm_title(mm_id, mm_title)
 
 def is_host_up():
     ## When ip is "dhcp", do nothing
@@ -312,16 +330,19 @@ def is_host_up():
             if check_count <= 10:
                 if response == 0:
                     print("HOOK: Host is up again, ending maintenance mode...")
-                    break
+                    return True
                 else:
                     logging.debug("( " + str(check_count) + ") Host is still down, waiting two seconds and then trying again...")
                     time.sleep(2)
                     check_count += 1
             else:
                 logging.error("Host is still down after 10 checks, something went wrong...")
-                break
+                return False
+    elif ip_address is None:
+        logging.debug("IP is not set, host may be offline")
     else:
         logging.debug("IP is dhcp or not set, not checking if host is up again...")
+        return False
 
 
 def main():

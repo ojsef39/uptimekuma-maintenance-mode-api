@@ -69,7 +69,7 @@ if [ "$phase" = 'pre-restart' ] ||
 [ "$phase" = 'job-abort' ]
 then
     echo "HOOK: Nothing to do here $phase"
-elif [ "$phase" == 'backup-start' ]
+elif [ "$phase" = 'backup-start' ]
 then
     # if backup is finished -> start maintenance mode
     echo "HOOK: Running $phase uptime.py (START)"
@@ -86,7 +86,7 @@ then
     echo "HOOK: Running $phase uptime.py (ABORT)"
     echo "HOOK: Doing nothing at $phase for now"
     #TODO: Differentiate between backup-end and backup-abort
-    exit 0
+
 elif [ "$phase" = 'log-end' ]
 then
     # if backup is finished wait until host is back online

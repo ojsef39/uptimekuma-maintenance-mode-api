@@ -3,15 +3,15 @@
 ### Python script to control maintenance modes in Uptime-Kuma ###
 For feature requests or bugs/issues please create an [GitHub Issues](https://github.com/ojsef39/uptimekuma-maintenance-mode-api).
 
-Logs are created in the file `uptime-api.log` in the same directory as the script
+Logs are shown in Proxmox Backup logs
 
 Requirements:
 - `pip install uptime_kuma_api`
 
-Update Script:
-- `sudo ./prepare.sh`
+Install/Update Script:
+- `sudo ./setup.sh`
 
-### Options: ###
+### Options for the python script (not setup.sh): ###
 
 `--log`: "DEBUG", "INFO", "WARNING", "ERROR" or "CRITICAL". Defaults to "INFO"
 

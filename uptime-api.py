@@ -283,10 +283,10 @@ def change_mm_start(mm_id, mm_title):
     status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
     if status_start_index != -1:
         mm_title = mm_title[:status_start_index]
-    if hostname is not None:
-        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(hostname) + ")"
-    else:
+    if hostname is None:
         changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(mm_vmid) + ")"
+    else:
+        changed_title = mm_title +  " (Status: " + str(mm_status) + " " + str(hostname) + ")"
     api.edit_maintenance(mm_id,
                         title=changed_title)
     logging.debug("Changed MM Title to: " + changed_title)
@@ -295,10 +295,10 @@ def change_mm_end(mm_id, mm_title):
     status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
     if status_start_index != -1:
         mm_title = mm_title[:status_start_index]
-    if hostname is not None:
-        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
-    else:
+    if hostname is None:
         changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(mm_vmid) + ")"
+    else:
+        changed_title = mm_title +  " (Status: " + str(mm_stop_status) + " " + str(hostname) + ")"
     api.edit_maintenance(mm_id,
                             title=changed_title)
     logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
@@ -308,10 +308,10 @@ def change_mm_log_wait(mm_id, mm_title):
     status_start_index = mm_title.find("(Status:")  # Find the index of "(Status:"
     if status_start_index != -1:
         mm_title = mm_title[:status_start_index]
-    if hostname is not None:
-        changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
-    else:
+    if hostname is None:
         changed_title = mm_title +  " (Status: Waiting for " + str(mm_vmid) + ")"
+    else:
+        changed_title = mm_title +  " (Status: Waiting for " + str(hostname) + ")"
     api.edit_maintenance(mm_id,
                             title=changed_title)
     logging.debug("Changed MM Title from " + mm_title +  " to: " + changed_title)
@@ -324,7 +324,7 @@ def is_host_up():
     ## When ip is "dhcp", do nothing
 
     if ip_address is None:
-        logging.debug("IP is not set, host may be offline")
+        print("HOOK: IP is not set, host may be offline")
         return False
     elif ip_address is not None and ip_address != "dhcp":
 
@@ -343,10 +343,10 @@ def is_host_up():
                     time.sleep(2)
                     check_count += 1
             else:
-                logging.error("Host is still down after 10 checks, something went wrong...")
+                print("HOOK: Host is still down after 10 checks, something went wrong...")
                 return False
     else:
-        logging.debug("IP is dhcp or not set, not checking if host is up again...")
+        print("HOOK: IP is dhcp or not set, not checking if host is up again...")
         return False
 
 

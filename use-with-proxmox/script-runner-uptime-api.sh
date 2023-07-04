@@ -14,15 +14,15 @@
 #!/bin/sh
 
 #LOGIN DATA
-url="uptimekuma url" # Defaults to "https://status.muc.azubi.server.lan"
+url="uptimekuma url"
 username="username"
 password="password"
-prox_host="proxmox-hostname" ## Defaults to localhost or oasis.muc.azubi.server.lan:443
-prox_node="node" ## Defaults to "oasis"
+prox_host="proxmox-hostname"
+prox_node="node"
 prox_user="proxmox-username"
 prox_pass="proxmox-password"
-status="Backing up VM" # = Your MM Title (Status: Backing up VM 995)
-stop_status="Stopping Backing up VM" # = Your MM Title (Status: Stopping Backing up VM 995)
+status="Backing up VM" 
+stop_status="Stopping Backing up VM"
 
 echo "HOOK: $@"
 

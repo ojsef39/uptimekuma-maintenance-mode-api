@@ -321,6 +321,7 @@ def is_host_up():
     ## When ip is "dhcp", do nothing
     if ip_address is None or ip_address == "":
         logging.debug("IP is not set, host may be offline")
+        return False
     elif ip_address != "dhcp":
 
         logging.debug("Checking if host is up in 2 seconds...")
